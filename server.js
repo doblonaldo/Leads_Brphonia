@@ -85,6 +85,7 @@ app.post(
             return res.status(400).json({ errors: errors.array() });
         }
 
+        /*
         try {
             const clientIp = req.ip;
             const recaptchaToken = req.body['g-recaptcha-response'];
@@ -112,6 +113,7 @@ app.post(
             console.error('Erro inesperado no servidor:', error);
             res.status(500).json({ error: 'Ocorreu um erro interno no servidor.' });
         }
+            */
     }
 );
 
