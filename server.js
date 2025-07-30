@@ -1,27 +1,18 @@
-/*
-================================================================================
-ARQUIVO: server.js (Versão com controlo de debug via web)
-================================================================================
-*/
-
-// --- 1. IMPORTAÇÕES E CONFIGURAÇÃO INICIAL ---
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs'); // Para escrever no ficheiro de log
+const fs = require('fs');
 const { body, validationResult } = require('express-validator');
-const { cpf, cnpj } = require('cpf-cnpj-validator'); // Importa ambos
+const { cpf, cnpj } = require('cpf-cnpj-validator');
 const axios = require('axios');
 
 const app = express();
 const PORT = process.env.PORT || 9000;
 
-// Variável para controlar o modo debug em tempo real
 let isDebugMode = false;
 
-// --- 2. MIDDLEWARES ---
 app.set('trust proxy', true);
 app.use(cors());
 app.use(express.json());
@@ -31,10 +22,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-// --- 3. FUNÇÃO DE LOG ---
 function logLeadToFile(leadData) {
     const logFilePath = path.join(__dirname, 'leads.log');
-    
     const timestamp = new Date().toLocaleString('pt-BR', {
         timeZone: 'America/Sao_Paulo',
         year: 'numeric',
@@ -55,7 +44,6 @@ function logLeadToFile(leadData) {
     }
 }
 
-// --- 4. ROTA PRINCIPAL DA API: /api/submit-lead ---
 app.post(
     '/api/submit-lead',
     upload.fields([]),
@@ -89,9 +77,9 @@ app.post(
             const clientIp = req.ip;
             const recaptchaToken = req.body['g-recaptcha-response'];
             const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
-            
+
             if (!recaptchaToken) {
-                 return res.status(400).json({ errors: [{ msg: 'Verificação do reCAPTCHA é obrigatória.' }] });
+                return res.status(400).json({ errors: [{ msg: 'Verificação do reCAPTCHA é obrigatória.' }] });
             }
 
             const recaptchaUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${recaptchaSecret}&response=${recaptchaToken}&remoteip=${clientIp}`;
@@ -105,8 +93,50 @@ app.post(
             const leadData = { ...req.body, clientIp };
             logLeadToFile(leadData);
 
-            console.log('Processo do lead concluído com sucesso no backend.');
-            res.status(200).json({ message: 'Cadastro recebido com sucesso!', leadId: 'LEAD-' + Date.now() });
+            // --- ENVIAR PARA API EXTERNA DA BRPHONIA ---
+            const {
+                documento,
+                nome,
+                telefone,
+                email,
+                rua,
+                bairro,
+                cidade_estado,
+                numero,
+                cep,
+                info_adicional,
+                latitude,
+                longitude
+            } = req.body;
+
+            const [cidade, estado] = cidade_estado.split('/').map(str => str.trim());
+
+            const endereco_lead = `${estado}|${cidade}|${bairro}|${rua}|${numero}|${info_adicional || ''}|${cep}`;
+            const token = process.env.API_BRPHONIA_TOKEN;
+            const apiURL = 'https://mk.brphonia.com.br/mk/WSMKInserirLead.rule';
+
+            const queryParams = new URLSearchParams({
+                documento,
+                nome,
+                fone01: telefone.replace(/\D/g, ''),
+                email,
+                endereco_lead,
+                lat: latitude || '0',
+                lon: longitude || '0',
+                token,
+                sys: 'MK0',
+                informacoes: info_adicional || '',
+                dataConnection: new Date().toISOString()
+            });
+
+            const { data: respostaAPI } = await axios.get(`${apiURL}?${queryParams.toString()}`);
+            console.log('Resposta da API externa:', respostaAPI);
+
+            return res.status(200).json({
+                message: 'Cadastro recebido com sucesso e enviado à Brphonia!',
+                leadId: 'LEAD-' + Date.now(),
+                respostaAPI
+            });
 
         } catch (error) {
             console.error('Erro inesperado no servidor:', error);
@@ -115,7 +145,7 @@ app.post(
     }
 );
 
-// --- 5. ROTAS DE CONTROLO DE DEBUG ---
+// Rotas de debug (sem alterações)
 const checkDebugSecret = (req, res, next) => {
     const secret = req.query.secret;
     if (!secret || secret !== process.env.DEBUG_SECRET_KEY) {
@@ -136,7 +166,6 @@ app.get('/api/debug/off', checkDebugSecret, (req, res) => {
     res.send('Cannot GET /api/logs');
 });
 
-// --- 6. ROTA PARA VISUALIZAR LOGS (CONDICIONAL) ---
 app.get('/api/logs', (req, res) => {
     if (!isDebugMode) {
         return res.status(403).type('text/plain').send('Cannot GET /api/logs.');
@@ -155,7 +184,6 @@ app.get('/api/logs', (req, res) => {
     });
 });
 
-// --- 7. INICIAR O SERVIDOR HTTP ---
 app.listen(PORT, () => {
     console.log(`Servidor backend (HTTP) a correr em http://localhost:${PORT}`);
     console.log('Para controlar o modo debug, use os endpoints /api/debug/on e /api/debug/off com a chave secreta.');
