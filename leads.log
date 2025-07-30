@@ -1,0 +1,23 @@
+[30/07/2025, 15:48:28] - NOVO LEAD RECEBIDO:
+{
+  "nome": "TESTE TI FULANO",
+  "documento": "152.693.807-30",
+  "telefone": "(55) 96907-898",
+  "email": "seu@email.com.br",
+  "cep": "25251-560",
+  "rua": "Rua Nadir",
+  "numero": "17",
+  "bairro": "Chácaras Arcampo",
+  "cidade_estado": "Duque de Caxias / RJ",
+  "info_adicional": "asdasdas",
+  "servicos": [
+    "Internet",
+    "Telefonia Móvel"
+  ],
+  "g-recaptcha-response": "",
+  "latitude": "0",
+  "longitude": "0",
+  "clientIp": "::1"
+}
+========================================
+
