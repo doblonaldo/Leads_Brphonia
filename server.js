@@ -141,7 +141,21 @@ app.post(
             const dataConnection = ''; // ajuste conforme necessário
 
             // Monta a URL da API externa
-            const apiUrl = `https://mk.brphonia.com.br/mk/WSMKInserirLead.rule?documento=${encodeURIComponent(documento)}&nome=${encodeURIComponent(nome)}&fone01=${encodeURIComponent(telefone)}&email=${encodeURIComponent(email)}&endereco_lead=${encodeURIComponent(endereco_lead)}&lat=${encodeURIComponent(latitude || '0')}&lon=${encodeURIComponent(longitude || '0')}&token=${encodeURIComponent(token)}&sys=${encodeURIComponent(sys)}&informacoes=${encodeURIComponent(info_adicional || '')}&dataConnection=${encodeURIComponent(dataConnection)}`;
+            const encodeLatin1 = str => Buffer.from(str || '', 'utf8').toString('latin1');
+
+            const apiUrl = `https://mk.brphonia.com.br/mk/WSMKInserirLead.rule?` +
+            `documento=${encodeURIComponent(encodeLatin1(documento))}` +
+            `&nome=${encodeURIComponent(encodeLatin1(nome))}` +
+            `&fone01=${encodeURIComponent(encodeLatin1(telefone))}` +
+            `&email=${encodeURIComponent(encodeLatin1(email))}` +
+            `&endereco_lead=${encodeURIComponent(encodeLatin1(endereco_lead))}` +
+            `&lat=${encodeURIComponent(encodeLatin1(latitude || '0'))}` +
+            `&lon=${encodeURIComponent(encodeLatin1(longitude || '0'))}` +
+            `&token=${encodeURIComponent(token)}` +
+            `&sys=${encodeURIComponent(sys)}` +
+            `&informacoes=${encodeURIComponent(encodeLatin1(info_adicional || ''))}` +
+            `&dataConnection=${encodeURIComponent(dataConnection)}`;
+
 
             // Chamada GET para API externa
             const apiResponse = await axios.get(apiUrl);
