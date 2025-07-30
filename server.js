@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 9000;
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Função para logar leads
