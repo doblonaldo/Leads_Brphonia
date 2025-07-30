@@ -1,134 +1,163 @@
+/*
+================================================================================
+ARQUIVO: server.js (Versão com controlo de debug via web)
+================================================================================
+*/
+
+// --- 1. IMPORTAÇÕES E CONFIGURAÇÃO INICIAL ---
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
-const axios = require('axios');
-const fs = require('fs');
+const multer = require('multer');
 const path = require('path');
+const fs = require('fs'); // Para escrever no ficheiro de log
 const { body, validationResult } = require('express-validator');
-require('dotenv').config();
+const { cpf, cnpj } = require('cpf-cnpj-validator'); // Importa ambos
+const axios = require('axios');
 
 const app = express();
 const PORT = process.env.PORT || 9000;
 
-// Middleware
+// Variável para controlar o modo debug em tempo real
+let isDebugMode = false;
+
+// --- 2. MIDDLEWARES ---
+app.set('trust proxy', true);
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Função para logar leads
-function logLeadToFile(data) {
-  const logPath = path.join(__dirname, 'leads.log');
-  const timestamp = new Date().toISOString();
-  const logData = `${timestamp} - ${JSON.stringify(data)}\n`;
-  fs.appendFileSync(logPath, logData);
-}
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
-// Rota para receber o formulário
-app.post('/api/submit-lead', [
-  body('documento').notEmpty().withMessage('Documento é obrigatório.'),
-  body('nome').notEmpty().withMessage('Nome é obrigatório.'),
-  body('telefone').notEmpty().withMessage('Telefone é obrigatório.'),
-  body('email').isEmail().withMessage('Email inválido.'),
-  body('rua').notEmpty().withMessage('Rua é obrigatória.'),
-  body('bairro').notEmpty().withMessage('Bairro é obrigatório.'),
-  body('cidade_estado').notEmpty().withMessage('Cidade/Estado é obrigatório.'),
-  body('numero').notEmpty().withMessage('Número é obrigatório.'),
-  body('cep').notEmpty().withMessage('CEP é obrigatório.')
-], async (req, res) => {
-  const clientIp = req.ip;
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  const recaptchaEnabled = process.env.RECAPTCHA_ENABLED !== 'false';
-  const recaptchaToken = req.body['g-recaptcha-response'];
-  const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
-
-  if (recaptchaEnabled) {
-    if (!recaptchaToken) {
-      return res.status(400).json({ errors: [{ msg: 'Verificação do reCAPTCHA é obrigatória.' }] });
-    }
-
-    try {
-      const recaptchaUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${recaptchaSecret}&response=${recaptchaToken}&remoteip=${clientIp}`;
-      const recaptchaRes = await axios.post(recaptchaUrl);
-
-      if (!recaptchaRes.data.success) {
-        return res.status(400).json({ errors: [{ msg: 'Falha na verificação do reCAPTCHA.' }] });
-      }
-    } catch (error) {
-      console.error('Erro ao verificar reCAPTCHA:', error);
-      return res.status(500).json({ errors: [{ msg: 'Erro interno ao verificar o reCAPTCHA.' }] });
-    }
-  }
-
-  const leadData = req.body;
-  logLeadToFile({ ...leadData, ip: clientIp });
-
-  // Enviar para API externa da Brphonia
-  try {
-    const {
-      documento,
-      nome,
-      telefone,
-      email,
-      rua,
-      bairro,
-      cidade_estado,
-      numero,
-      cep,
-      info_adicional,
-      latitude,
-      longitude
-    } = leadData;
-
-    const [cidade, estado] = cidade_estado.split('/').map(s => s.trim());
-
-    const endereco_lead = `${estado}|${cidade}|${bairro}|${rua}|${numero}|${info_adicional || ''}|${cep}`;
-
-    const apiUrl = 'https://mk.brphonia.com.br/mk/WSMKInserirLead.rule';
-    const queryParams = new URLSearchParams({
-      documento,
-      nome,
-      fone01: telefone.replace(/\D/g, ''),
-      email,
-      endereco_lead,
-      lat: latitude || '0',
-      lon: longitude || '0',
-      token: process.env.API_BRPHONIA_TOKEN,
-      sys: 'MK0',
-      informacoes: info_adicional || '',
-      dataConnection: ''
+// --- 3. FUNÇÃO DE LOG ---
+function logLeadToFile(leadData) {
+    const logFilePath = path.join(__dirname, 'leads.log');
+    
+    const timestamp = new Date().toLocaleString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
     });
 
-    const response = await axios.get(`${apiUrl}?${queryParams.toString()}`);
+    const logEntry = `[${timestamp}] - NOVO LEAD RECEBIDO:\n${JSON.stringify(leadData, null, 2)}\n========================================\n\n`;
 
-    console.log('Resposta da API externa:', response.data);
-    return res.status(200).json({ success: true, mensagem: 'Lead enviado com sucesso.', resposta: response.data });
-  } catch (error) {
-    console.error('Erro ao enviar lead para a API externa:', error.message);
-    return res.status(500).json({ success: false, mensagem: 'Erro ao enviar para API externa.' });
-  }
+    try {
+        fs.appendFileSync(logFilePath, logEntry);
+        console.log('Lead guardado com sucesso em leads.log');
+    } catch (error) {
+        console.error('ERRO AO GUARDAR O LOG:', error);
+    }
+}
+
+// --- 4. ROTA PRINCIPAL DA API: /api/submit-lead ---
+app.post(
+    '/api/submit-lead',
+    upload.fields([]),
+    [
+        body('nome').trim().notEmpty().withMessage('O nome é obrigatório.')
+            .not().isNumeric().withMessage('O nome não pode ser apenas números.'),
+        body('documento').trim().notEmpty().withMessage('O CPF/CNPJ é obrigatório.').custom(value => {
+            const doc = value.replace(/\D/g, '');
+            if (!cpf.isValid(doc) && !cnpj.isValid(doc)) {
+                throw new Error('O CPF ou CNPJ fornecido é inválido.');
+            }
+            return true;
+        }),
+        body('telefone').trim().notEmpty().withMessage('O telefone é obrigatório.'),
+        body('email').trim().notEmpty().withMessage('O email é obrigatório.').isEmail(),
+        body('cep').if(body('sem_cep').not().equals('on')).trim().notEmpty().withMessage('O CEP é obrigatório.'),
+        body('rua').trim().notEmpty().withMessage('A rua é obrigatória.'),
+        body('numero').trim().notEmpty().withMessage('O número é obrigatório.'),
+        body('bairro').trim().notEmpty().withMessage('O bairro é obrigatório.'),
+        body('cidade_estado').trim().notEmpty().withMessage('A cidade/estado são obrigatórios.'),
+        body('servicos').optional(),
+        body('info_adicional').optional().trim(),
+    ],
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        try {
+            const clientIp = req.ip;
+            /*
+            const recaptchaToken = req.body['g-recaptcha-response'];
+            const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
+            
+            if (!recaptchaToken) {
+                 return res.status(400).json({ errors: [{ msg: 'Verificação do reCAPTCHA é obrigatória.' }] });
+            }
+
+            const recaptchaUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${recaptchaSecret}&response=${recaptchaToken}&remoteip=${clientIp}`;
+            const recaptchaRes = await axios.post(recaptchaUrl);
+
+            if (!recaptchaRes.data.success) {
+                console.log('Falha na validação do reCAPTCHA:', recaptchaRes.data['error-codes']);
+                return res.status(400).json({ errors: [{ msg: 'Falha na verificação do reCAPTCHA. Tente novamente.' }] });
+            }
+            */
+            const leadData = { ...req.body, clientIp };
+            logLeadToFile(leadData);
+
+            console.log('Processo do lead concluído com sucesso no backend.');
+            res.status(200).json({ message: 'Cadastro recebido com sucesso!', leadId: 'LEAD-' + Date.now() });
+
+        } catch (error) {
+            console.error('Erro inesperado no servidor:', error);
+            res.status(500).json({ error: 'Ocorreu um erro interno no servidor.' });
+        }
+    }
+);
+
+// --- 5. ROTAS DE CONTROLO DE DEBUG ---
+const checkDebugSecret = (req, res, next) => {
+    const secret = req.query.secret;
+    if (!secret || secret !== process.env.DEBUG_SECRET_KEY) {
+        return res.status(401).send('Chave secreta inválida.');
+    }
+    next();
+};
+
+app.get('/api/debug/on', checkDebugSecret, (req, res) => {
+    isDebugMode = true;
+    console.log('MODO DEBUG ATIVADO VIA API.');
+    res.send('Modo debug ativado. A rota /api/logs está agora acessível.');
 });
 
-// Rota para debug de logs
-app.get('/api/leads-log', (req, res) => {
-  const secret = req.query.secret;
-  if (secret !== process.env.DEBUG_SECRET_KEY) {
-    return res.status(403).json({ message: 'Acesso não autorizado.' });
-  }
-
-  const logPath = path.join(__dirname, 'leads.log');
-  if (!fs.existsSync(logPath)) {
-    return res.status(404).json({ message: 'Arquivo de log não encontrado.' });
-  }
-
-  const logs = fs.readFileSync(logPath, 'utf8');
-  res.type('text/plain').send(logs);
+app.get('/api/debug/off', checkDebugSecret, (req, res) => {
+    isDebugMode = false;
+    console.log('MODO DEBUG DESATIVADO VIA API.');
+    res.send('Cannot GET /api/logs');
 });
 
+// --- 6. ROTA PARA VISUALIZAR LOGS (CONDICIONAL) ---
+app.get('/api/logs', (req, res) => {
+    if (!isDebugMode) {
+        return res.status(403).type('text/plain').send('Cannot GET /api/logs.');
+    }
+
+    const logFilePath = path.join(__dirname, 'leads.log');
+    fs.readFile(logFilePath, 'utf8', (err, data) => {
+        if (err) {
+            if (err.code === 'ENOENT') {
+                return res.status(404).type('text/plain').send('Ficheiro de log ainda não foi criado.');
+            }
+            return res.status(500).type('text/plain').send('Erro ao ler o ficheiro de log.');
+        }
+        res.header('Content-Type', 'text/plain; charset=utf-8');
+        res.send(data);
+    });
+});
+
+// --- 7. INICIAR O SERVIDOR HTTP ---
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`Servidor backend (HTTP) a correr em http://localhost:${PORT}`);
+    console.log('Para controlar o modo debug, use os endpoints /api/debug/on e /api/debug/off com a chave secreta.');
 });
