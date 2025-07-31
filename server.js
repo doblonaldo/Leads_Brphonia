@@ -21,6 +21,17 @@ const PORT = process.env.PORT || 9000;
 // Variável para controlar o modo debug em tempo real
 let isDebugMode = false;
 
+//Sanatizar o codigo
+function sanitizeInput(str) {
+    if (!str) return '';
+    return str
+        .normalize('NFD')                   // separa acentos de letras
+        .replace(/[\u0300-\u036f]/g, '')   // remove os acentos
+        .replace(/[^\x00-\x7F]/g, '')      // remove outros caracteres não-ASCII
+        .replace(/[^a-zA-Z0-9\s@._-]/g, '') // remove símbolos indesejados
+        .trim();
+}
+
 // --- 2. MIDDLEWARES ---
 app.set('trust proxy', true);
 app.use(cors());
@@ -121,27 +132,37 @@ app.post(
                 latitude,
                 longitude
             } = req.body;
-
+            // Limpa os campos antes de enviar para API
+            const sanitizedNome = sanitizeInput(nome);
+            const sanitizedDocumento = sanitizeInput(documento);
+            const sanitizedTelefone = sanitizeInput(telefone);
+            const sanitizedEmail = sanitizeInput(email);
+            const sanitizedCep = sanitizeInput(cep);
+            const sanitizedRua = sanitizeInput(rua);
+            const sanitizedNumero = sanitizeInput(numero);
+            const sanitizedBairro = sanitizeInput(bairro);
+            const sanitizedCidadeEstado = sanitizeInput(cidade_estado);
+            const sanitizedInfoAdicional = sanitizeInput(info_adicional);
             // Separa cidade e estado (espera "Cidade / Estado")
             let cidade = '';
             let estado = '';
-            if (cidade_estado && cidade_estado.includes('/')) {
-                [cidade, estado] = cidade_estado.split('/').map(s => s.trim());
+            if (sanitizedCidadeEstado && sanitizedCidadeEstado.includes('/')) {
+                [cidade, estado] = sanitizedCidadeEstado.split('/').map(s => s.trim());
             } else {
-                cidade = cidade_estado || '';
+                cidade = sanitizedCidadeEstado || '';
                 estado = '';
             }
 
             // Monta endereco_lead conforme esperado pela API externa
-            const endereco_lead = `${estado}|${cidade}|${bairro}|${rua}|${numero}|casa|${cep}`;
+            const endereco_lead = `${estado}|${cidade}|${sanitizedBairro}|${sanitizedRua}|${sanitizedNumero}|casa|${sanitizedCep}`;
 
             // Token da API - recomendo colocar no .env
-            const token = process.env.BRPHONIA_API_TOKEN || '887d9c5494fa02ef982e0ed1e039444d.350537';
+            const token = process.env.BRPHONIA_API_TOKEN;
             const sys = 'MK0';
             const dataConnection = ''; // ajuste conforme necessário
 
             // Monta a URL da API externa
-            const apiUrl = `https://mk.brphonia.com.br/mk/WSMKInserirLead.rule?documento=${encodeURIComponent(documento)}&nome=${encodeURIComponent(nome)}&fone01=${encodeURIComponent(telefone)}&email=${encodeURIComponent(email)}&endereco_lead=${encodeURIComponent(endereco_lead)}&lat=${encodeURIComponent(latitude || '0')}&lon=${encodeURIComponent(longitude || '0')}&token=${encodeURIComponent(token)}&sys=${encodeURIComponent(sys)}&informacoes=${encodeURIComponent(info_adicional || '')}&dataConnection=${encodeURIComponent(dataConnection)}`;
+            const apiUrl = `https://mk.brphonia.com.br/mk/WSMKInserirLead.rule?documento=${encodeURIComponent(sanitizedDocumento)}&nome=${encodeURIComponent(sanitizedNome)}&fone01=${encodeURIComponent(sanitizedTelefone)}&email=${encodeURIComponent(sanitizedEmail)}&endereco_lead=${encodeURIComponent(endereco_lead)}&lat=${encodeURIComponent(latitude || '0')}&lon=${encodeURIComponent(longitude || '0')}&token=${encodeURIComponent(token)}&sys=${encodeURIComponent(sys)}&informacoes=${encodeURIComponent(sanitizedInfoAdicional || '')}&dataConnection=${encodeURIComponent(dataConnection)}`;
 
             // Chamada GET para API externa
             const apiResponse = await axios.get(apiUrl);
