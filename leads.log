@@ -71,3 +71,96 @@
 }
 ========================================
 
+[31/07/2025, 14:12:42] - NOVO LEAD RECEBIDO:
+{
+  "nome": "Lucas Da TI Teste",
+  "documento": "508.381.610-57",
+  "telefone": "(11) 24325-566",
+  "tem_whatsapp": "on",
+  "email": "seu@email.com.br",
+  "autoriza_email": "on",
+  "cep": "98796-704",
+  "rua": "Rua São Guido",
+  "numero": "12",
+  "bairro": "Auxiliadora",
+  "cidade_estado": "Santa Rosa / RS",
+  "info_adicional": "asdasdsadasda",
+  "servicos": [
+    "Internet",
+    "Telefonia Móvel",
+    "Telefonia Fixa",
+    "Central"
+  ],
+  "g-recaptcha-response": "",
+  "latitude": "0",
+  "longitude": "0",
+  "clientIp": "::1",
+  "apiResponse": ""
+}
+========================================
+
+[31/07/2025, 14:14:34] - NOVO LEAD RECEBIDO:
+{
+  "nome": "GABRIEL TESTETI",
+  "documento": "508.381.610-57",
+  "telefone": "(55) 96907-898",
+  "email": "seu@email.com.br",
+  "cep": "98796-704",
+  "rua": "Rua São Guido",
+  "numero": "12",
+  "bairro": "Auxiliadora",
+  "cidade_estado": "Santa Rosa / RS",
+  "info_adicional": "jjkhjgjh",
+  "g-recaptcha-response": "",
+  "latitude": "0",
+  "longitude": "0",
+  "clientIp": "::1",
+  "apiResponse": ""
+}
+========================================
+
+[31/07/2025, 14:14:34] - NOVO LEAD RECEBIDO:
+{
+  "nome": "GABRIEL TESTETI",
+  "documento": "508.381.610-57",
+  "telefone": "(55) 96907-898",
+  "email": "seu@email.com.br",
+  "cep": "98796-704",
+  "rua": "Rua São Guido",
+  "numero": "12",
+  "bairro": "Auxiliadora",
+  "cidade_estado": "Santa Rosa / RS",
+  "info_adicional": "jjkhjgjh",
+  "g-recaptcha-response": "",
+  "latitude": "0",
+  "longitude": "0",
+  "clientIp": "::1",
+  "apiResponse": ""
+}
+========================================
+
+[31/07/2025, 14:30:55] - NOVO LEAD RECEBIDO:
+{
+  "nome": "Lucas Da TI Teste",
+  "documento": "508.381.610-57",
+  "telefone": "(55) 96907-898",
+  "email": "seu@email.com.br",
+  "sem_cep": "on",
+  "rua": "rua tal",
+  "numero": "17",
+  "bairro": "fulano",
+  "cidade_estado": "cliclano/RS",
+  "info_adicional": "asdasdasd",
+  "g-recaptcha-response": "",
+  "latitude": "0",
+  "longitude": "0",
+  "clientIp": "::1",
+  "apiResponse": {
+    "cd_lead": 55353,
+    "pass_sac": "c6e16d",
+    "status": "sucesso",
+    "user_sac": "0ff1ff6c"
+  }
+}
+========================================
+
