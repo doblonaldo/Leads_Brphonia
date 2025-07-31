@@ -1,4 +1,23 @@
-# Projeto de Segurança do Sistema - To-Do
+# Passoa a seguir
+
+---
+
+## 1. Validar API
+
+* **Objetivo:** Garantir que a APi tenha comunicação com o MK.
+   * [ ] Validar envio de informações usando a API.
+
+## 2. Validar informações antes de envia 
+   * [ ] Validar informação dos campos que é enviado.
+
+.
+.
+.
+
+---
+
+
+# Projeto de Segurança do Sistema
 
 ---
 
