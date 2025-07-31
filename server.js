@@ -141,9 +141,9 @@ app.post(
             let cidade = '';
             let estado = '';
             if (cidade_estado && cidade_estado.includes('/')) {
-                [cidade, estado] = cidade_estado.split('/').map(s => s.trim());
+                [cidade, estado] = cidade_estado.split('/').map(s => removeCaracteresEspeciais(s.trim()));
             } else {
-                cidade = cidade_estado || '';
+                cidade = removeCaracteresEspeciais(cidade_estado || '');
                 estado = '';
             }
 
