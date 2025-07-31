@@ -14,7 +14,16 @@ const fs = require('fs'); // Para escrever no ficheiro de log
 const { body, validationResult } = require('express-validator');
 const { cpf, cnpj } = require('cpf-cnpj-validator'); // Importa ambos
 const axios = require('axios');
-
+// Função utilitária para remover acentos e caracteres especiais
+const removeCaracteresEspeciais = (str) => {
+    if (!str) return '';
+    return str
+        .normalize('NFD')                   // Decompor acentos
+        .replace(/[\u0300-\u036f]/g, '')    // Remover acentos
+        .replace(/[^a-zA-Z0-9\s]/g, '')     // Remover caracteres especiais
+        .replace(/\s+/g, ' ')               // Espaços múltiplos -> único
+        .trim();                            // Remover espaços nas extremidades
+};
 const app = express();
 const PORT = process.env.PORT || 9000;
 
@@ -107,7 +116,7 @@ app.post(
             */
 
             // Extrai dados do formulário
-            const {
+            let {
                 documento,
                 nome,
                 telefone,
@@ -121,6 +130,12 @@ app.post(
                 latitude,
                 longitude
             } = req.body;
+
+            // Sanitize campos sensíveis
+            nome = removeCaracteresEspeciais(nome);
+            rua = removeCaracteresEspeciais(rua);
+            bairro = removeCaracteresEspeciais(bairro);
+
 
             // Separa cidade e estado (espera "Cidade / Estado")
             let cidade = '';
