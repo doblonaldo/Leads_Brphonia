@@ -350,3 +350,55 @@
 }
 ========================================
 
+[31/07/2025, 16:52:14] - NOVO LEAD RECEBIDO:
+{
+  "nome": "André Pião",
+  "documento": "508.381.610-57",
+  "telefone": "(55) 96907-898",
+  "email": "seu@email.com.br",
+  "cep": "25251-560",
+  "rua": "Rua Nadir",
+  "numero": "17",
+  "bairro": "Chácaras Arcampo",
+  "cidade_estado": "Duque de Caxias / RJ",
+  "info_adicional": "",
+  "g-recaptcha-response": "",
+  "latitude": "0",
+  "longitude": "0",
+  "clientIp": "::1",
+  "apiResponse": {
+    "cd_lead": 55372,
+    "pass_sac": "d47f17",
+    "status": "sucesso",
+    "user_sac": "0e8c64ca"
+  }
+}
+========================================
+
+[31/07/2025, 16:56:06] - NOVO LEAD RECEBIDO:
+{
+  "nome": "André Pião",
+  "documento": "508.381.610-57",
+  "telefone": "(55) 96907-898",
+  "tem_whatsapp": "on",
+  "email": "seu@email.com.br",
+  "autoriza_email": "on",
+  "sem_cep": "on",
+  "rua": "Rua São Guido",
+  "numero": "17",
+  "bairro": "Chácaras Arcampo",
+  "cidade_estado": "Serio/RS",
+  "info_adicional": "Rua xxx",
+  "g-recaptcha-response": "",
+  "latitude": "0",
+  "longitude": "0",
+  "clientIp": "::1",
+  "apiResponse": {
+    "cd_lead": 55375,
+    "pass_sac": "b630d0",
+    "status": "sucesso",
+    "user_sac": "1e54d01b"
+  }
+}
+========================================
+
