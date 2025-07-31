@@ -153,7 +153,7 @@
             <div class="flex justify-center pt-4">
                  <div class="g-recaptcha" data-sitekey="6LcRl4crAAAAALq7XKvWmTPu4Q17XTwN2ot-X7ey"></div>
             </div>
-            
+
             <!-- Botão de Envio -->
             <div class="pt-4">
                 <button type="submit" id="submit-btn" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
@@ -163,15 +163,6 @@
             </div>
              <!-- Área de Mensagens -->
             <div id="form-messages" class="text-center text-md"></div>
-
-            <!-- Modal de mensagem -->
-            <div id="form-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-                <div id="form-modal-content" class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md text-center">
-                    <p id="form-modal-message" class="text-lg font-medium text-gray-800"></p>
-                    <button onclick="closeFormModal()" ...>Fechar</button>
-
-                </div>
-            </div>
         </form>
     </div>
 
@@ -271,42 +262,19 @@
         };
         getGeolocation();
 
-        // Função para sanitizar campos
-        function sanitizeString(str) {
-            return str
-                .normalize('NFD')                     // separa acentos de letras
-                .replace(/[\u0300-\u036f]/g, '')      // remove acentos
-                .replace(/[^\x00-\x7F]/g, '')         // remove caracteres não ASCII
-                .replace(/[^a-zA-Z0-9\s@._-]/g, '')   // remove símbolos indesejados, mantém email e nome
-                .trim();
-        }
-
-
         // --- LÓGICA DE SUBMISSÃO ---
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-
+            
             if (!form.checkValidity()) {
-                showFormModal('Por favor, preencha todos os campos obrigatórios.', false);
+                formMessages.innerHTML = `<p class="text-red-600">Por favor, preencha todos os campos obrigatórios.</p>`;
                 return;
             }
 
             setLoading(true);
 
-            // Cria novo FormData sanitizado
-            const rawFormData = new FormData(form);
-            const formData = new FormData();
+            const formData = new FormData(form);
 
-            // Aplica sanitização nos campos de texto
-            for (const [key, value] of rawFormData.entries()) {
-                if (typeof value === 'string') {
-                    formData.append(key, sanitizeString(value));
-                } else {
-                    formData.append(key, value);
-                }
-            }
-
-            // Adiciona localização geográfica
             formData.append('latitude', geoLocationData.lat || '0');
             formData.append('longitude', geoLocationData.lon || '0');
 
@@ -324,15 +292,25 @@
                         : (result.error || 'Ocorreu um erro no servidor.');
                     throw new Error(errorMessage);
                 }
-
-                showFormModal('Cadastro concluído com sucesso! Nossa equipe entrará em contato em breve.', true);
+                
+                // **MENSAGEM DE SUCESSO ALTERADA**
+                formMessages.innerHTML = `
+                <div class="mt-4 p-4 rounded bg-green-100 text-green-800 border border-green-300 shadow">
+                    Cadastro concluído com sucesso! Nossa equipe entrará em contato em breve.
+                </div>
+                `;
                 form.reset();
                 grecaptcha.reset();
                 toggleAddressFields(false);
 
+                setTimeout(() => {
+                    formMessages.innerHTML = '';
+                }, 6000);
+
+
             } catch (error) {
                 console.error('Erro na submissão:', error);
-                showFormModal(`Falha no cadastro: ${error.message}`, false);
+                formMessages.innerHTML = `<p class="text-red-600">Falha no cadastro: ${error.message}</p>`;
             } finally {
                 setLoading(false);
             }
@@ -349,35 +327,7 @@
                 btnSpinner.classList.add('hidden');
             }
         }
-        function showFormModal(message, success = true) {
-            const modal = document.getElementById('form-modal');
-            const messageEl = document.getElementById('form-modal-message');
-            const content = document.getElementById('form-modal-content');
-
-            messageEl.textContent = message;
-
-            content.classList.remove('bg-green-100', 'bg-red-100', 'text-green-700', 'text-red-700');
-            messageEl.classList.remove('text-green-700', 'text-red-700');
-
-            if (success) {
-                content.classList.add('bg-green-100');
-                messageEl.classList.add('text-green-700');
-            } else {
-                content.classList.add('bg-red-100');
-                messageEl.classList.add('text-red-700');
-            }
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeFormModal() {
-            const modal = document.getElementById('form-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
     });
-    window.closeFormModal = closeFormModal;
     </script>
 </body>
 </html>

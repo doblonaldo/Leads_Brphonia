@@ -304,3 +304,24 @@
 }
 ========================================
 
+[31/07/2025, 16:22:51] - NOVO LEAD RECEBIDO:
+{
+  "documento": "508.381.610-57",
+  "nome": "GABRIEL TESTETI",
+  "telefone": "55 96907-898",
+  "email": "seu@email.com.br",
+  "cep": "25251-560",
+  "rua": "Rua Nadir",
+  "numero": "17",
+  "bairro": "Chacaras Arcampo",
+  "cidade": "Duque de Caxias  RJ",
+  "estado": "",
+  "info_adicional": "",
+  "latitude": "0",
+  "longitude": "0",
+  "endereco_lead": "|Duque de Caxias  RJ|Chacaras Arcampo|Rua Nadir|17|casa|25251-560",
+  "clientIp": "::1",
+  "apiResponse": ""
+}
+========================================
+
