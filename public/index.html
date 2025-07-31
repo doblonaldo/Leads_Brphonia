@@ -163,7 +163,7 @@
             </div>
              <!-- Área de Mensagens -->
             <div id="form-messages" class="text-center text-md"></div>
-            
+
             <!-- Modal de mensagem -->
             <div id="form-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
                 <div id="form-modal-content" class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md text-center">
@@ -269,6 +269,14 @@
             }
         };
         getGeolocation();
+        
+        // Função para sanitizar campos
+        function sanitizeString(str) {
+            return str
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/[^\x20-\x7E]/g, "");
+        }
 
         // --- LÓGICA DE SUBMISSÃO ---
         form.addEventListener('submit', async (e) => {
