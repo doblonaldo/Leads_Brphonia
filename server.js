@@ -21,17 +21,6 @@ const PORT = process.env.PORT || 9000;
 // Variável para controlar o modo debug em tempo real
 let isDebugMode = false;
 
-//Sanatizar o codigo
-function sanitizeInput(str) {
-    if (!str) return '';
-    return str
-        .normalize('NFD')                   // separa acentos de letras
-        .replace(/[\u0300-\u036f]/g, '')   // remove os acentos
-        .replace(/[^\x00-\x7F]/g, '')      // remove outros caracteres não-ASCII
-        .replace(/[^a-zA-Z0-9\s@._-]/g, '') // remove símbolos indesejados
-        .trim();
-}
-
 // --- 2. MIDDLEWARES ---
 app.set('trust proxy', true);
 app.use(cors());
@@ -132,29 +121,19 @@ app.post(
                 latitude,
                 longitude
             } = req.body;
-            // Limpa os campos antes de enviar para API
-            const sanitizedNome = sanitizeInput(nome);
-            const sanitizedDocumento = sanitizeInput(documento);
-            const sanitizedTelefone = sanitizeInput(telefone);
-            const sanitizedEmail = sanitizeInput(email);
-            const sanitizedCep = sanitizeInput(cep);
-            const sanitizedRua = sanitizeInput(rua);
-            const sanitizedNumero = sanitizeInput(numero);
-            const sanitizedBairro = sanitizeInput(bairro);
-            const sanitizedCidadeEstado = sanitizeInput(cidade_estado);
-            const sanitizedInfoAdicional = sanitizeInput(info_adicional);
+
             // Separa cidade e estado (espera "Cidade / Estado")
             let cidade = '';
             let estado = '';
-            if (sanitizedCidadeEstado && sanitizedCidadeEstado.includes('/')) {
-                [cidade, estado] = sanitizedCidadeEstado.split('/').map(s => s.trim());
+            if (cidade_estado && cidade_estado.includes('/')) {
+                [cidade, estado] = cidade_estado.split('/').map(s => s.trim());
             } else {
-                cidade = sanitizedCidadeEstado || '';
+                cidade = cidade_estado || '';
                 estado = '';
             }
 
             // Monta endereco_lead conforme esperado pela API externa
-            const endereco_lead = `${estado}|${cidade}|${sanitizedBairro}|${sanitizedRua}|${sanitizedNumero}|casa|${sanitizedCep}`;
+            const endereco_lead = `${estado}|${cidade}|${bairro}|${rua}|${numero}|casa|${cep}`;
 
             // Token da API - recomendo colocar no .env
             const token = process.env.BRPHONIA_API_TOKEN;
@@ -162,7 +141,7 @@ app.post(
             const dataConnection = ''; // ajuste conforme necessário
 
             // Monta a URL da API externa
-            const apiUrl = `https://mk.brphonia.com.br/mk/WSMKInserirLead.rule?documento=${encodeURIComponent(sanitizedDocumento)}&nome=${encodeURIComponent(sanitizedNome)}&fone01=${encodeURIComponent(sanitizedTelefone)}&email=${encodeURIComponent(sanitizedEmail)}&endereco_lead=${encodeURIComponent(endereco_lead)}&lat=${encodeURIComponent(latitude || '0')}&lon=${encodeURIComponent(longitude || '0')}&token=${encodeURIComponent(token)}&sys=${encodeURIComponent(sys)}&informacoes=${encodeURIComponent(sanitizedInfoAdicional || '')}&dataConnection=${encodeURIComponent(dataConnection)}`;
+            const apiUrl = `https://mk.brphonia.com.br/mk/WSMKInserirLead.rule?documento=${encodeURIComponent(documento)}&nome=${encodeURIComponent(nome)}&fone01=${encodeURIComponent(telefone)}&email=${encodeURIComponent(email)}&endereco_lead=${encodeURIComponent(endereco_lead)}&lat=${encodeURIComponent(latitude || '0')}&lon=${encodeURIComponent(longitude || '0')}&token=${encodeURIComponent(token)}&sys=${encodeURIComponent(sys)}&informacoes=${encodeURIComponent(info_adicional || '')}&dataConnection=${encodeURIComponent(dataConnection)}`;
 
             // Chamada GET para API externa
             const apiResponse = await axios.get(apiUrl);
@@ -173,25 +152,7 @@ app.post(
             }
 
             // Log local com resposta da API externa
-            logLeadToFile({
-                documento: sanitizedDocumento,
-                nome: sanitizedNome,
-                telefone: sanitizedTelefone,
-                email: sanitizedEmail,
-                cep: sanitizedCep,
-                rua: sanitizedRua,
-                numero: sanitizedNumero,
-                bairro: sanitizedBairro,
-                cidade: cidade,
-                estado: estado,
-                info_adicional: sanitizedInfoAdicional,
-                latitude: latitude,
-                longitude: longitude,
-                endereco_lead,
-                clientIp,
-                apiResponse: apiResponse.data
-            });
-
+            logLeadToFile({ ...req.body, clientIp, apiResponse: apiResponse.data });
 
             console.log('Processo do lead concluído com sucesso no backend e API externa.');
             res.status(200).json({ message: 'Cadastro recebido com sucesso!', leadId: 'LEAD-' + Date.now() });
