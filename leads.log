@@ -217,3 +217,48 @@
 }
 ========================================
 
+[31/07/2025, 15:22:50] - NOVO LEAD RECEBIDO:
+{
+  "nome": "GABRIEL TESTETI",
+  "documento": "508.381.610-57",
+  "telefone": "(55) 96907-898",
+  "email": "seu@email.com.br",
+  "sem_cep": "on",
+  "rua": "Rua Nadir",
+  "numero": "17",
+  "bairro": "Auxiliadora",
+  "cidade_estado": "Santa Rosa / RS",
+  "info_adicional": "",
+  "g-recaptcha-response": "",
+  "latitude": "0",
+  "longitude": "0",
+  "clientIp": "::1",
+  "apiResponse": {
+    "cd_lead": 55359,
+    "pass_sac": "52b916",
+    "status": "sucesso",
+    "user_sac": "d878188b"
+  }
+}
+========================================
+
+[31/07/2025, 15:25:27] - NOVO LEAD RECEBIDO:
+{
+  "nome": "GABRIEL TESTETI",
+  "documento": "508.381.610-57",
+  "telefone": "(55) 96907-898",
+  "email": "seu@email.com.br",
+  "cep": "25251-560",
+  "rua": "Rua Nadir",
+  "numero": "17",
+  "bairro": "Chácaras Arcampo",
+  "cidade_estado": "Duque de Caxias / RJ",
+  "info_adicional": "",
+  "g-recaptcha-response": "",
+  "latitude": "0",
+  "longitude": "0",
+  "clientIp": "::1",
+  "apiResponse": ""
+}
+========================================
+
