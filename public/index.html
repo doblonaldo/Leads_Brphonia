@@ -269,7 +269,7 @@
             }
         };
         getGeolocation();
-        
+
         // Função para sanitizar campos
         function sanitizeString(str) {
             return str
@@ -340,6 +340,7 @@
             messageEl.textContent = message;
 
             content.classList.remove('bg-green-100', 'bg-red-100', 'text-green-700', 'text-red-700');
+            messageEl.classList.remove('text-green-700', 'text-red-700');
 
             if (success) {
                 content.classList.add('bg-green-100');
