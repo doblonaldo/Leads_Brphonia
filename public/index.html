@@ -274,10 +274,13 @@
         // Função para sanitizar campos
         function sanitizeString(str) {
             return str
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/[^\x20-\x7E]/g, "");
+                .normalize('NFD')                     // separa acentos de letras
+                .replace(/[\u0300-\u036f]/g, '')      // remove acentos
+                .replace(/[^\x00-\x7F]/g, '')         // remove caracteres não ASCII
+                .replace(/[^a-zA-Z0-9\s@._-]/g, '')   // remove símbolos indesejados, mantém email e nome
+                .trim();
         }
+
 
         // --- LÓGICA DE SUBMISSÃO ---
         form.addEventListener('submit', async (e) => {
@@ -290,7 +293,20 @@
 
             setLoading(true);
 
-            const formData = new FormData(form);
+            // Cria novo FormData sanitizado
+            const rawFormData = new FormData(form);
+            const formData = new FormData();
+
+            // Aplica sanitização nos campos de texto
+            for (const [key, value] of rawFormData.entries()) {
+                if (typeof value === 'string') {
+                    formData.append(key, sanitizeString(value));
+                } else {
+                    formData.append(key, value);
+                }
+            }
+
+            // Adiciona localização geográfica
             formData.append('latitude', geoLocationData.lat || '0');
             formData.append('longitude', geoLocationData.lon || '0');
 
