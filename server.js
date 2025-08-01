@@ -146,7 +146,7 @@ app.post(
                 estado = '';
             }
             
-            cidade_estado = removeCaracteresEspeciais(cidade_estado);
+            cidade = removeCaracteresEspeciais(cidade);
 
             // Monta endereco_lead conforme esperado pela API externa
             const endereco_lead = `${estado}|${cidade}|${bairro}|${rua}|${numero}|casa|${cep}`;
