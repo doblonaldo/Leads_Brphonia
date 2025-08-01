@@ -215,12 +215,11 @@
             cepInput.required = !enableManualInput; // **AQUI ESTÁ A CORREÇÃO**
 
             addressFields.forEach(field => {
-                field.readOnly = !enableManualInput;
+                field.readOnly = false;
+                field.classList.remove('bg-gray-100');
+
                 if (enableManualInput) {
-                    field.classList.remove('bg-gray-100');
                     field.value = ''; // Limpa os campos
-                } else {
-                    field.classList.add('bg-gray-100');
                 }
             });
 
