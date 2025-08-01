@@ -118,7 +118,7 @@
                     </div>
                     <div class="md:col-span-2">
                         <label for="rua" class="form-label">Rua / Logradouro</label>
-                        <input type="text" id="rua" name="rua" class="form-input" readonly required>
+                        <input type="text" id="rua" name="rua" class="form-input" required>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
@@ -128,11 +128,11 @@
                     </div>
                     <div>
                         <label for="bairro" class="form-label">Bairro</label>
-                        <input type="text" id="bairro" name="bairro" class="form-input" readonly required>
+                        <input type="text" id="bairro" name="bairro" class="form-input" required>
                     </div>
                     <div>
                         <label for="cidade_estado" class="form-label">Cidade / Estado</label>
-                        <input type="text" id="cidade_estado" name="cidade_estado" class="form-input" readonly required>
+                        <input type="text" id="cidade_estado" name="cidade_estado" class="form-input" required>
                     </div>
                 </div>
                  <div class="mt-6">
@@ -293,7 +293,7 @@
             setTimeout(() => {
                 toast.classList.add('animate-fade-out');
                 setTimeout(() => toast.remove(), 500); // Tempo de fade-out
-            }, 3000);
+            }, 5000);
         }
 
         // --- LÓGICA DE SUBMISSÃO ---
@@ -328,7 +328,7 @@
                 }
                 
                 // **MENSAGEM DE SUCESSO ALTERADA**
-                showToast('Cadastro concluído com sucesso! Nossa equipe entrará em contato em breve.', 'success');
+                showToast('Cadastro concluído! Entraremos em contato em breve.', 'success');
 
                 form.reset();
                 grecaptcha.reset();
