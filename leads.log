@@ -635,3 +635,36 @@
 }
 ========================================
 
+[01/08/2025, 14:01:21] - NOVO LEAD RECEBIDO:
+{
+  "nome": "Márcia #tinman",
+  "documento": "152.693.807-30",
+  "telefone": "(55) 96907-898",
+  "tem_whatsapp": "on",
+  "email": "lucas-laiber@hotmail.com",
+  "autoriza_email": "on",
+  "cep": "25251-560",
+  "rua": "Rua Nadir-#b2",
+  "numero": "172",
+  "bairro": "Chácaras Arcampo#b2",
+  "cidade_estado": "Duque de Caxias / RJ",
+  "info_adicional": "asdsad#%$#%$%@",
+  "servicos": [
+    "Internet",
+    "Telefonia Móvel",
+    "Telefonia Fixa",
+    "Central"
+  ],
+  "g-recaptcha-response": "",
+  "latitude": "0",
+  "longitude": "0",
+  "clientIp": "::1",
+  "apiResponse": {
+    "cd_lead": 55429,
+    "pass_sac": "f85f12",
+    "status": "sucesso",
+    "user_sac": "2ac95bdf"
+  }
+}
+========================================
+
