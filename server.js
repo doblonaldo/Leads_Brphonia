@@ -135,6 +135,7 @@ app.post(
             nome = removeCaracteresEspeciais(nome);
             rua = removeCaracteresEspeciais(rua);
             bairro = removeCaracteresEspeciais(bairro);
+            numero = removeCaracteresEspeciais(numero);
 
             // Separa cidade e estado (espera "Cidade / Estado")
             let cidade = '';
