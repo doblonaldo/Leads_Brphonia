@@ -668,3 +668,49 @@
 }
 ========================================
 
+[04/08/2025, 11:20:57] - NOVO LEAD RECEBIDO:
+{
+  "nome": "Lucas Da TI Teste",
+  "documento": "508.381.610-57",
+  "telefone": "(55) 96907-898",
+  "email": "seu@email.com.br",
+  "cep": "25251-560",
+  "rua": "Rua Nadir",
+  "numero": "17",
+  "bairro": "Chácaras Arcampo",
+  "cidade_estado": "Duque de Caxias / RJ",
+  "info_adicional": "Script",
+  "g-recaptcha-response": "",
+  "latitude": "0",
+  "longitude": "0",
+  "clientIp": "::1",
+  "apiResponse": {
+    "status": "SUCESSO",
+    "Mensagem": "API externa desativada para teste."
+  }
+}
+========================================
+
+[04/08/2025, 11:22:14] - NOVO LEAD RECEBIDO:
+{
+  "nome": "GABRIEL TESTETI",
+  "documento": "508.381.610-57",
+  "telefone": "(55) 96907-898",
+  "email": "seu@email.com.br",
+  "cep": "25251-560",
+  "rua": "Rua Nadir",
+  "numero": "17",
+  "bairro": "Chácaras Arcampo",
+  "cidade_estado": "Duque de Caxias / RJ",
+  "info_adicional": "asdasdas",
+  "g-recaptcha-response": "",
+  "latitude": "0",
+  "longitude": "0",
+  "clientIp": "::1",
+  "apiResponse": {
+    "status": "SUCESSO",
+    "Mensagem": "API externa desativada para teste."
+  }
+}
+========================================
+

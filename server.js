@@ -174,7 +174,25 @@ app.post(
             }
 
             // Log local com resposta da API externa
-            logLeadToFile({ ...req.body, clientIp, apiResponse: apiResponse.data });
+            logLeadToFile({
+                documento,
+                nome,
+                telefone,
+                email,
+                cep,
+                rua,
+                numero,
+                bairro,
+                cidade,
+                estado,
+                endereco_lead,
+                info_adicional,
+                latitude,
+                longitude,
+                clientIp,
+                apiResponse: apiResponse.data
+            });
+
 
             console.log('Processo do lead concluído com sucesso no backend e API externa.');
             res.status(200).json({ message: 'Cadastro recebido com sucesso!', leadId: 'LEAD-' + Date.now() });
