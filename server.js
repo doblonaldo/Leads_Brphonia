@@ -6,7 +6,7 @@ ARQUIVO: server.js (Versão com controlo de debug via web)
 
 // --- 1. IMPORTAÇÕES E CONFIGURAÇÃO INICIAL ---
 require('dotenv').config();
-const API_DISABLED = process.env.API_DISABLED === 'true';
+const API_DISABLED = process.env.API_DISABLED;
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
