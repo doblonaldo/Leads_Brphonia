@@ -6,7 +6,7 @@ ARQUIVO: server.js (Versão com controlo de debug via web)
 
 // --- 1. IMPORTAÇÕES E CONFIGURAÇÃO INICIAL ---
 require('dotenv').config();
-const API_DISABLED = process.env.API_DISABLED;
+const ENVIO_EXTERNO_ATIVO = process.env.API_ENVIO_EXTERNO !== 'off';
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
@@ -65,7 +65,7 @@ function logLeadToFile(leadData) {
         console.error('ERRO AO GUARDAR O LOG:', error);
     }
 }
-/*
+
 // --- 4. ROTA PRINCIPAL DA API: /api/submit-lead ---
 app.post(
     '/api/submit-lead',
@@ -105,7 +105,7 @@ app.post(
         try {
             const clientIp = req.ip;
 
-            
+            /*
             // reCAPTCHA desativado temporariamente
             const recaptchaToken = req.body['g-recaptcha-response'];
             const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
@@ -121,7 +121,7 @@ app.post(
                 console.log('Falha na validação do reCAPTCHA:', recaptchaRes.data['error-codes']);
                 return res.status(400).json({ errors: [{ msg: 'Falha na verificação do reCAPTCHA. Tente novamente.' }] });
             }
-            
+            */
 
             // Extrai dados do formulário
             let {
@@ -169,11 +169,14 @@ app.post(
             const apiUrl = `https://mk.brphonia.com.br/mk/WSMKInserirLead.rule?documento=${encodeURIComponent(documento)}&nome=${encodeURIComponent(nome)}&fone01=${encodeURIComponent(telefone)}&email=${encodeURIComponent(email)}&endereco_lead=${encodeURIComponent(endereco_lead)}&lat=${encodeURIComponent(latitude || '0')}&lon=${encodeURIComponent(longitude || '0')}&token=${encodeURIComponent(token)}&sys=${encodeURIComponent(sys)}&informacoes=${encodeURIComponent(info_adicional || '')}&dataConnection=${encodeURIComponent(dataConnection)}`;
 
             // Chamada GET para API externa
-            const apiResponse = await axios.get(apiUrl);
+            let apiResponse = { data: { status: 'SUCESSO', Mensagem: 'API externa desativada para teste.' } };
 
-            // Verifica retorno da API externa
-            if (apiResponse.data && apiResponse.data.status === 'ERRO') {
-                return res.status(400).json({ errors: [{ msg: `Erro na API externa: ${apiResponse.data.Mensagem || 'Erro desconhecido'}` }] });
+            if (ENVIO_EXTERNO_ATIVO) {
+                apiResponse = await axios.get(apiUrl);
+        
+                if (apiResponse.data && apiResponse.data.status === 'ERRO') {
+                    return res.status(400).json({ errors: [{ msg: `Erro na API externa: ${apiResponse.data.Mensagem || 'Erro desconhecido'}` }] });
+                }
             }
 
             // Log local com resposta da API externa
@@ -188,7 +191,7 @@ app.post(
         }
     }
 );
-*/
+
 // --- 5. ROTAS DE CONTROLO DE DEBUG ---
 const checkDebugSecret = (req, res, next) => {
     const secret = req.query.secret;
