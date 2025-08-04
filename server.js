@@ -12,6 +12,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs'); // Para escrever no ficheiro de log
 const { body, validationResult } = require('express-validator');
+const validator = require('validator');
 const { cpf, cnpj } = require('cpf-cnpj-validator'); // Importa ambos
 const axios = require('axios');
 // Função utilitária para remover acentos e caracteres especiais
@@ -135,6 +136,7 @@ app.post(
             nome = removeCaracteresEspeciais(nome);
             rua = removeCaracteresEspeciais(rua);
             bairro = removeCaracteresEspeciais(bairro);
+            info_adicional = validator.escape(info_adicional || '');
 
             // Separa cidade e estado (espera "Cidade / Estado")
             let cidade = '';
