@@ -77,7 +77,7 @@
             <fieldset class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="nome" class="form-label">Nome Completo / Razão Social</label>
-                    <input type="text" id="nome" name="nome" class="form-input" placeholder="Seu nome ou da sua empresa" required pattern="^[A-Za-zÀ-ÿ\s\-']{3,100}$" title="Use apenas letras, espaços, hífens ou apóstrofos. Mínimo de 3 caracteres.">
+                    <input type="text" id="nome" name="nome" class="form-input" placeholder="Seu nome ou da sua empresa" required oninput="this.value = this.value.replace(/[0-9]/g, '')" pattern="^[^0-9]+$">
                 </div>
                 <div>
                     <label for="documento" class="form-label">CPF / CNPJ</label>
@@ -197,47 +197,6 @@
         const formMessages = document.getElementById('form-messages');
         
         let geoLocationData = { lat: null, lon: null };
-
-        // --- Validação de segurança ---
-        function isValidDocumento(doc) {
-            const cleanDoc = doc.replace(/\D/g, '');
-            return cleanDoc.length === 11 || cleanDoc.length === 14;
-        }
-
-        function isValidTelefone(telefone) {
-            return /^\(\d{2}\) \d{5}-\d{4}$/.test(telefone);
-        }
-
-        function isValidEmail(email) {
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-        }
-
-        // --- VALIDAÇÕES EXTRAS ANTES DE ENVIAR ---
-        const documento = formData.get('documento');
-        const telefone = formData.get('telefone');
-        const email = formData.get('email');
-        const nome = formData.get('nome');
-
-        if (!isValidDocumento(documento)) {
-            showToast('CPF ou CNPJ inválido.', 'error');
-            setLoading(false);
-            return;
-        }
-        if (!isValidTelefone(telefone)) {
-            showToast('Número de telefone inválido.', 'error');
-            setLoading(false);
-            return;
-        }
-        if (!isValidEmail(email)) {
-            showToast('E-mail inválido.', 'error');
-            setLoading(false);
-            return;
-        }
-        if (!nome || nome.length < 3) {
-            showToast('Nome muito curto.', 'error');
-            setLoading(false);
-            return;
-        }
 
         // --- MÁSCARAS DE INPUT ---
         const docInput = document.getElementById('documento');
