@@ -6,6 +6,7 @@ ARQUIVO: server.js (Versão com controlo de debug via web)
 
 // --- 1. IMPORTAÇÕES E CONFIGURAÇÃO INICIAL ---
 require('dotenv').config();
+const API_DISABLED = process.env.API_DISABLED === 'true';
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
@@ -68,6 +69,12 @@ function logLeadToFile(leadData) {
 // --- 4. ROTA PRINCIPAL DA API: /api/submit-lead ---
 app.post(
     '/api/submit-lead',
+    (req, res, next) => {
+        if (API_DISABLED) {
+            return res.status(503).json({ error: 'API temporariamente indisponível para manutenção. Tente novamente mais tarde.' });
+        }
+        next();
+    },
     upload.fields([]),
     [
         body('nome').trim().notEmpty().withMessage('O nome é obrigatório.')
