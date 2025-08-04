@@ -71,17 +71,39 @@ app.post(
     '/api/submit-lead',
     upload.fields([]),
     [
-        body('nome').trim().isLength({ min: 3, max: 100 }).matches(/^[A-Za-zÀ-ÿ\s\-']+$/).not().isNumeric().escape(),
-        body('documento').trim().notEmpty().custom(value => { const doc = value.replace(/\D/g, ''); if (!cpf.isValid(doc) && !cnpj.isValid(doc)) throw new Error('CPF/CNPJ inválido'); return true; }),
-        body('telefone').trim().isLength({ min: 10, max: 15 }).blacklist('()- '),
-        body('email').trim().isEmail().normalizeEmail(),
-        body('cep').if(body('sem_cep').not().equals('on')).trim().isPostalCode('BR'),
-        body('rua').trim().isLength({ min: 1, max: 100 }).escape(),
-        body('numero').trim().isLength({ max: 20 }).escape(),
-        body('bairro').trim().isLength({ min: 1, max: 100 }).escape(),
-        body('cidade_estado').trim().matches(/^[A-Za-zÀ-ÿ\s\-]+\/[A-Z]{2}$/).escape(),
-        body('servicos').optional().custom(value => { if (!Array.isArray(value)) value = [value]; const valid = ['Internet','Telefonia Móvel','Telefonia Fixa','Central']; if (!value.every(v => valid.includes(v))) throw new Error('Serviços inválidos'); return true; }),
-        body('info_adicional').optional().trim().isLength({ max: 500 }).escape()
+        body('nome').trim().notEmpty().withMessage('O nome é obrigatório.').isLength({ min: 3, max: 100 }).matches(/^[A-Za-zÀ-ÿ\s\-']+$/).not().isNumeric().withMessage('O nome não pode ser apenas números.').escape(),
+
+        body('documento').trim().notEmpty().withMessage('O CPF/CNPJ é obrigatório.').custom(value => {
+            const doc = value.replace(/\D/g, '');
+            if (!cpf.isValid(doc) && !cnpj.isValid(doc)) {
+                throw new Error('O CPF ou CNPJ fornecido é inválido.');
+            }
+            return true;
+        }),
+
+        body('telefone').trim().notEmpty().withMessage('O telefone é obrigatório.').isLength({ min: 10, max: 15 }).blacklist('()- '),
+
+        body('email').trim().notEmpty().withMessage('O email é obrigatório.').isEmail().normalizeEmail(),
+
+        body('cep').if(body('sem_cep').not().equals('on')).trim().notEmpty().withMessage('O CEP é obrigatório.').isPostalCode('BR'),
+
+        body('rua').trim().notEmpty().withMessage('A rua é obrigatória.').isLength({ max: 100 }).escape(),
+
+        body('numero').trim().notEmpty().withMessage('O número é obrigatório.').isLength({ max: 20 }).escape(),
+
+        body('bairro').trim().notEmpty().withMessage('O bairro é obrigatório.').isLength({ max: 100 }).escape(),
+
+        body('cidade_estado').trim().notEmpty().withMessage('A cidade/estado são obrigatórios.').matches(/^[A-Za-zÀ-ÿ\s\-]+\/[A-Z]{2}$/).escape(),
+
+        body('servicos').optional().custom(value => {
+            if (!Array.isArray(value)) value = [value];
+            const valid = ['Internet','Telefonia Móvel','Telefonia Fixa','Central'];
+            if (!value.every(v => valid.includes(v))) throw new Error('Serviços inválidos.');
+            return true;
+        }),
+
+        body('info_adicional').optional().trim().isLength({ max: 500 }).escape(),
+
     ],
     async (req, res) => {
         const errors = validationResult(req);
