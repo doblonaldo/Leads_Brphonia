@@ -69,12 +69,6 @@ function logLeadToFile(leadData) {
 // --- 4. ROTA PRINCIPAL DA API: /api/submit-lead ---
 app.post(
     '/api/submit-lead',
-    (req, res, next) => {
-        if (API_DISABLED) {
-            return res.status(503).json({ error: 'API temporariamente indisponível para manutenção. Tente novamente mais tarde.' });
-        }
-        next();
-    },
     upload.fields([]),
     [
         body('nome').trim().notEmpty().withMessage('O nome é obrigatório.')
