@@ -32,6 +32,7 @@ const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
 const limitadorIp = require('./limitadorIp');
 const csrfProtection = csrf({ cookie: { httpOnly: true, sameSite: 'strict' } });
+const helmet = require('helmet');
 
 // Variável para controlar o modo debug em tempo real
 let isDebugMode = false;
@@ -43,6 +44,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
+app.use(helmet());
 app.disable('x-powered-by'); // Esconde que você usa Express
 app.get('/api/csrf-token', csrfProtection, (req, res) => {
     res.json({ csrfToken: req.csrfToken() });
@@ -185,7 +187,7 @@ app.post(
                 apiResponse = await axios.get(apiUrl);
         
                 if (apiResponse.data && apiResponse.data.status === 'ERRO') {
-                    return res.status(400).json({ errors: [{ msg: `Erro na API externa: ${apiResponse.data.Mensagem || 'Erro desconhecido'}` }] });
+                    return res.status(400).json({ errors: [{ msg: `Erro Desconhecido` }] });
                 }
             }
 
