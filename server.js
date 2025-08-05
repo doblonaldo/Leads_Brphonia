@@ -164,7 +164,8 @@ app.post(
             const endereco_lead = `${estado}|${cidade}|${bairro}|${rua}|${numero}|casa|${cep}`;
 
             // Token da API - recomendo colocar no .env
-            const token = process.env.BRPHONIA_API_TOKEN;
+            const { obterToken } = require('./tokenManager');
+            const token = await obterToken();
             const sys = 'MK0';
             const dataConnection = ''; // ajuste conforme necessário
 
