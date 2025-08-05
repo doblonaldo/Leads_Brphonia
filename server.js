@@ -149,6 +149,10 @@ app.post(
             rua = removeCaracteresEspeciais(rua);
             bairro = removeCaracteresEspeciais(bairro);
             info_adicional = validator.escape(info_adicional || '');
+            documento = validator.escape(documento);
+            telefone = validator.escape(telefone);
+            email = validator.normalizeEmail(email);
+
 
             // Separa cidade e estado (espera "Cidade / Estado")
             let cidade = '';
