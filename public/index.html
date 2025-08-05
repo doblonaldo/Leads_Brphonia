@@ -312,8 +312,15 @@
             formData.append('longitude', geoLocationData.lon || '0');
 
             try {
+                const csrfToken = await fetch('/api/csrf-token')
+                    .then(res => res.json())
+                    .then(data => data.csrfToken);
+
                 const response = await fetch('/api/submit-lead', {
                     method: 'POST',
+                    headers: {
+                        'CSRF-Token': csrfToken // <- necessário para o `csurf`
+                    },
                     body: formData,
                 });
 

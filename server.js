@@ -28,6 +28,9 @@ const removeCaracteresEspeciais = (str) => {
 };
 const app = express();
 const PORT = process.env.PORT || 9000;
+const csrf = require('csurf');
+const cookieParser = require('cookie-parser');
+const csrfProtection = csrf({ cookie: { httpOnly: true, sameSite: 'strict' } });
 
 // Variável para controlar o modo debug em tempo real
 let isDebugMode = false;
@@ -38,6 +41,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieParser());
+app.get('/api/csrf-token', csrfProtection, (req, res) => {
+    res.json({ csrfToken: req.csrfToken() });
+});
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -70,9 +77,10 @@ function logLeadToFile(leadData) {
 app.post(
     '/api/submit-lead',
     upload.fields([]),
+    csrfProtection,
     [
-        body('nome').trim().notEmpty().withMessage('O nome é obrigatório.').isLength({ min: 3, max: 100 }).matches(/^[A-Za-zÀ-ÿ\s\-']+$/).not().isNumeric().withMessage('O nome não pode ser apenas números.').escape(),
-
+        body('nome').trim().notEmpty().withMessage('O nome é obrigatório.')
+            .not().isNumeric().withMessage('O nome não pode ser apenas números.'),
         body('documento').trim().notEmpty().withMessage('O CPF/CNPJ é obrigatório.').custom(value => {
             const doc = value.replace(/\D/g, '');
             if (!cpf.isValid(doc) && !cnpj.isValid(doc)) {
@@ -80,30 +88,15 @@ app.post(
             }
             return true;
         }),
-
-        body('telefone').trim().notEmpty().withMessage('O telefone é obrigatório.').isLength({ min: 10, max: 15 }).blacklist('()- '),
-
-        body('email').trim().notEmpty().withMessage('O email é obrigatório.').isEmail().normalizeEmail(),
-
-        body('cep').if(body('sem_cep').not().equals('on')).trim().notEmpty().withMessage('O CEP é obrigatório.').isPostalCode('BR'),
-
-        body('rua').trim().notEmpty().withMessage('A rua é obrigatória.').isLength({ max: 100 }).escape(),
-
-        body('numero').trim().notEmpty().withMessage('O número é obrigatório.').isLength({ max: 20 }).escape(),
-
-        body('bairro').trim().notEmpty().withMessage('O bairro é obrigatório.').isLength({ max: 100 }).escape(),
-
-        body('cidade_estado').trim().notEmpty().withMessage('A cidade/estado são obrigatórios.').matches(/^[A-Za-zÀ-ÿ\s\-]+\/[A-Z]{2}$/).escape(),
-
-        body('servicos').optional().custom(value => {
-            if (!Array.isArray(value)) value = [value];
-            const valid = ['Internet','Telefonia Móvel','Telefonia Fixa','Central'];
-            if (!value.every(v => valid.includes(v))) throw new Error('Serviços inválidos.');
-            return true;
-        }),
-
-        body('info_adicional').optional().trim().isLength({ max: 500 }).escape(),
-
+        body('telefone').trim().notEmpty().withMessage('O telefone é obrigatório.'),
+        body('email').trim().notEmpty().withMessage('O email é obrigatório.').isEmail(),
+        body('cep').if(body('sem_cep').not().equals('on')).trim().notEmpty().withMessage('O CEP é obrigatório.'),
+        body('rua').trim().notEmpty().withMessage('A rua é obrigatória.'),
+        body('numero').trim().notEmpty().withMessage('O número é obrigatório.'),
+        body('bairro').trim().notEmpty().withMessage('O bairro é obrigatório.'),
+        body('cidade_estado').trim().notEmpty().withMessage('A cidade/estado são obrigatórios.'),
+        body('servicos').optional(),
+        body('info_adicional').optional().trim(),
     ],
     async (req, res) => {
         const errors = validationResult(req);
