@@ -912,3 +912,55 @@
 }
 ========================================
 
+[05/08/2025, 11:28:07] - NOVO LEAD RECEBIDO:
+{
+  "documento": "508.381.610-57",
+  "nome": "GABRIEL TESTETI",
+  "telefone": "(55) 96907-898",
+  "email": "seu@email.com.br",
+  "cep": "25251-560",
+  "rua": "Rua Nadir",
+  "numero": "17",
+  "bairro": "Chacaras Arcampo",
+  "cidade": "Duque de Caxias",
+  "estado": "RJ",
+  "endereco_lead": "RJ|Duque de Caxias|Chacaras Arcampo|Rua Nadir|17|casa|25251-560",
+  "info_adicional": "",
+  "latitude": "0",
+  "longitude": "0",
+  "clientIp": "::1",
+  "apiResponse": {
+    "cd_lead": 55521,
+    "pass_sac": "8c5614",
+    "status": "sucesso",
+    "user_sac": "a80f0a71"
+  }
+}
+========================================
+
+[05/08/2025, 11:31:57] - NOVO LEAD RECEBIDO:
+{
+  "documento": "508.381.610-57",
+  "nome": "Andre Piao",
+  "telefone": "(11) 24325-566",
+  "email": "seu@email.com.br",
+  "cep": "25251-560",
+  "rua": "Rua Nadir",
+  "numero": "17",
+  "bairro": "Chacaras Arcampo",
+  "cidade": "Duque de Caxias",
+  "estado": "RJ",
+  "endereco_lead": "RJ|Duque de Caxias|Chacaras Arcampo|Rua Nadir|17|casa|25251-560",
+  "info_adicional": "sdasda",
+  "latitude": "0",
+  "longitude": "0",
+  "clientIp": "::1",
+  "apiResponse": {
+    "cd_lead": 55522,
+    "pass_sac": "7442cf",
+    "status": "sucesso",
+    "user_sac": "16560677"
+  }
+}
+========================================
+

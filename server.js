@@ -30,6 +30,7 @@ const app = express();
 const PORT = process.env.PORT || 9000;
 const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
+const limitadorIp = require('./limitadorIp');
 const csrfProtection = csrf({ cookie: { httpOnly: true, sameSite: 'strict' } });
 
 // Variável para controlar o modo debug em tempo real
@@ -77,6 +78,7 @@ function logLeadToFile(leadData) {
 // --- 4. ROTA PRINCIPAL DA API: /api/submit-lead ---
 app.post(
     '/api/submit-lead',
+    limitadorIp,
     upload.fields([]),
     csrfProtection,
     [
