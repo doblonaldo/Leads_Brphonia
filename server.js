@@ -112,7 +112,7 @@ app.post(
         try {
             const clientIp = req.ip;
 
-            /*
+            
             // reCAPTCHA desativado temporariamente
             const recaptchaToken = req.body['g-recaptcha-response'];
             const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
@@ -128,7 +128,7 @@ app.post(
                 console.log('Falha na validação do reCAPTCHA:', recaptchaRes.data['error-codes']);
                 return res.status(400).json({ errors: [{ msg: 'Falha na verificação do reCAPTCHA. Tente novamente.' }] });
             }
-            */
+            
 
             // Extrai dados do formulário
             let {
@@ -178,7 +178,7 @@ app.post(
             const dataConnection = ''; // ajuste conforme necessário
 
             // Monta a URL da API externa
-            const apiUrl = `https://mk.brphonia.com.br/mk/WSMKInserirLead.rule?documento=${encodeURIComponent(documento)}&nome=${encodeURIComponent(nome)}&fone01=${encodeURIComponent(telefone)}&email=${encodeURIComponent(email)}&endereco_lead=${encodeURIComponent(endereco_lead)}&lat=${encodeURIComponent(latitude || '0')}&lon=${encodeURIComponent(longitude || '0')}&token=${encodeURIComponent(token)}&sys=${encodeURIComponent(sys)}&informacoes=${encodeURIComponent(info_adicional || '')}&dataConnection=${encodeURIComponent(dataConnection)}`;
+            const apiUrl = `https://mk.brphonia.com.br/mk/WSMKInserirLead.rule?documento=${encodeURIComponent(documento)}&nome=${encodeURIComponent(nome)}&fone01=${encodeURIComponent(telefone)}&email=${encodeURIComponent(email)}&endereco_lead=${encodeURIComponent(endereco_lead)}&lat=${encodeURIComponent(latitude || '')}&lon=${encodeURIComponent(longitude || '')}&token=${encodeURIComponent(token)}&sys=${encodeURIComponent(sys)}&informacoes=${encodeURIComponent(info_adicional || '')}&dataConnection=${encodeURIComponent(dataConnection)}`;
 
             // Chamada GET para API externa
             let apiResponse = { data: { status: 'SUCESSO', Mensagem: 'API externa desativada para teste.' } };

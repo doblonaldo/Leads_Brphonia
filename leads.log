@@ -1042,3 +1042,29 @@
 }
 ========================================
 
+[05/08/2025, 15:50:13] - NOVO LEAD RECEBIDO:
+{
+  "documento": "508.381.610-57",
+  "nome": "LL",
+  "telefone": "(12) 13213-2131",
+  "email": "21313213312@123132312.com.br",
+  "cep": "98796-704",
+  "rua": "Rua Sao Guido",
+  "numero": "17",
+  "bairro": "Auxiliadora",
+  "cidade": "Santa Rosa",
+  "estado": "RS",
+  "endereco_lead": "RS|Santa Rosa|Auxiliadora|Rua Sao Guido|17|casa|98796-704",
+  "info_adicional": "123213123145",
+  "latitude": "0",
+  "longitude": "0",
+  "clientIp": "::1",
+  "apiResponse": {
+    "cd_lead": 55535,
+    "pass_sac": "feda64",
+    "status": "sucesso",
+    "user_sac": "a39182b1"
+  }
+}
+========================================
+

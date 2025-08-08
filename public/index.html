@@ -308,8 +308,8 @@
 
             const formData = new FormData(form);
 
-            formData.append('latitude', geoLocationData.lat || '0');
-            formData.append('longitude', geoLocationData.lon || '0');
+            formData.append('latitude', geoLocationData.lat || '');
+            formData.append('longitude', geoLocationData.lon || '');
 
             try {
                 const csrfToken = await fetch('/api/csrf-token')
