@@ -45,6 +45,21 @@
             cursor: not-allowed;
             color: #9ca3af;
         }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fade-out {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.3s ease-out forwards;
+        }
+        .animate-fade-out {
+            animation: fade-out 0.3s ease-in forwards;
+        }
+
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -103,21 +118,21 @@
                     </div>
                     <div class="md:col-span-2">
                         <label for="rua" class="form-label">Rua / Logradouro</label>
-                        <input type="text" id="rua" name="rua" class="form-input" readonly required>
+                        <input type="text" id="rua" name="rua" class="form-input" required>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                     <div>
                         <label for="numero" class="form-label">Número</label>
-                        <input type="text" id="numero" name="numero" class="form-input" required>
+                        <input type="text" id="numero" name="numero" class="form-input" required inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     </div>
                     <div>
                         <label for="bairro" class="form-label">Bairro</label>
-                        <input type="text" id="bairro" name="bairro" class="form-input" readonly required>
+                        <input type="text" id="bairro" name="bairro" class="form-input" required>
                     </div>
                     <div>
                         <label for="cidade_estado" class="form-label">Cidade / Estado</label>
-                        <input type="text" id="cidade_estado" name="cidade_estado" class="form-input" readonly required>
+                        <input type="text" id="cidade_estado" name="cidade_estado" class="form-input" required>
                     </div>
                 </div>
                  <div class="mt-6">
@@ -200,12 +215,11 @@
             cepInput.required = !enableManualInput; // **AQUI ESTÁ A CORREÇÃO**
 
             addressFields.forEach(field => {
-                field.readOnly = !enableManualInput;
+                field.readOnly = false;
+                field.classList.remove('bg-gray-100');
+
                 if (enableManualInput) {
-                    field.classList.remove('bg-gray-100');
                     field.value = ''; // Limpa os campos
-                } else {
-                    field.classList.add('bg-gray-100');
                 }
             });
 
@@ -262,6 +276,25 @@
         };
         getGeolocation();
 
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toast-container');
+
+            const bgClass = type === 'success' ? 'bg-green-600' : 'bg-red-600';
+            const borderClass = type === 'success' ? 'border-green-700' : 'border-red-700';
+            const textClass = 'text-white';
+
+            const toast = document.createElement('div');
+            toast.className = `p-4 rounded shadow border ${bgClass} ${borderClass} ${textClass} animate-fade-in`;
+            toast.textContent = message;
+
+            toastContainer.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('animate-fade-out');
+                setTimeout(() => toast.remove(), 500); // Tempo de fade-out
+            }, 5000);
+        }
+
         // --- LÓGICA DE SUBMISSÃO ---
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -275,12 +308,19 @@
 
             const formData = new FormData(form);
 
-            formData.append('latitude', geoLocationData.lat || '0');
-            formData.append('longitude', geoLocationData.lon || '0');
+            formData.append('latitude', geoLocationData.lat || '');
+            formData.append('longitude', geoLocationData.lon || '');
 
             try {
+                const csrfToken = await fetch('/api/csrf-token')
+                    .then(res => res.json())
+                    .then(data => data.csrfToken);
+
                 const response = await fetch('/api/submit-lead', {
                     method: 'POST',
+                    headers: {
+                        'CSRF-Token': csrfToken // <- necessário para o `csurf`
+                    },
                     body: formData,
                 });
 
@@ -294,14 +334,20 @@
                 }
                 
                 // **MENSAGEM DE SUCESSO ALTERADA**
-                formMessages.innerHTML = `<p class="text-green-600">Cadastro concluido! Aguarde até nossa equipe entrar em contato.</p>`;
+                showToast('Cadastro concluído! Entraremos em contato em breve.', 'success');
+
                 form.reset();
                 grecaptcha.reset();
                 toggleAddressFields(false);
 
+                setTimeout(() => {
+                    formMessages.innerHTML = '';
+                }, 6000);
+
+
             } catch (error) {
                 console.error('Erro na submissão:', error);
-                formMessages.innerHTML = `<p class="text-red-600">Falha no cadastro: ${error.message}</p>`;
+                showToast(`Falha no cadastro: ${error.message}`, 'error');
             } finally {
                 setLoading(false);
             }
@@ -320,5 +366,6 @@
         }
     });
     </script>
+    <div id="toast-container" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 space-y-3"></div>
 </body>
 </html>

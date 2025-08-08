@@ -6,17 +6,33 @@ ARQUIVO: server.js (Versão com controlo de debug via web)
 
 // --- 1. IMPORTAÇÕES E CONFIGURAÇÃO INICIAL ---
 require('dotenv').config();
+const ENVIO_EXTERNO_ATIVO = process.env.API_ENVIO_EXTERNO !== 'off';
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs'); // Para escrever no ficheiro de log
 const { body, validationResult } = require('express-validator');
+const validator = require('validator');
 const { cpf, cnpj } = require('cpf-cnpj-validator'); // Importa ambos
 const axios = require('axios');
-
+// Função utilitária para remover acentos e caracteres especiais
+const removeCaracteresEspeciais = (str) => {
+    if (!str) return '';
+    return str
+        .normalize('NFD')                   // Decompor acentos
+        .replace(/[\u0300-\u036f]/g, '')    // Remover acentos
+        .replace(/[^a-zA-Z0-9\s]/g, '')     // Remover caracteres especiais
+        .replace(/\s+/g, ' ')               // Espaços múltiplos -> único
+        .trim();                            // Remover espaços nas extremidades
+};
 const app = express();
 const PORT = process.env.PORT || 9000;
+const csrf = require('csurf');
+const cookieParser = require('cookie-parser');
+const limitadorIp = require('./limitadorIp');
+const csrfProtection = csrf({ cookie: { httpOnly: true, sameSite: 'strict' } });
+const helmet = require('helmet');
 
 // Variável para controlar o modo debug em tempo real
 let isDebugMode = false;
@@ -27,6 +43,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieParser());
+app.use(helmet());
+app.disable('x-powered-by'); // Esconde que você usa Express
+app.get('/api/csrf-token', csrfProtection, (req, res) => {
+    res.json({ csrfToken: req.csrfToken() });
+});
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -58,7 +80,9 @@ function logLeadToFile(leadData) {
 // --- 4. ROTA PRINCIPAL DA API: /api/submit-lead ---
 app.post(
     '/api/submit-lead',
+    limitadorIp,
     upload.fields([]),
+    csrfProtection,
     [
         body('nome').trim().notEmpty().withMessage('O nome é obrigatório.')
             .not().isNumeric().withMessage('O nome não pode ser apenas números.'),
@@ -87,6 +111,9 @@ app.post(
 
         try {
             const clientIp = req.ip;
+
+            
+            // reCAPTCHA desativado temporariamente
             const recaptchaToken = req.body['g-recaptcha-response'];
             const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
             
@@ -101,15 +128,95 @@ app.post(
                 console.log('Falha na validação do reCAPTCHA:', recaptchaRes.data['error-codes']);
                 return res.status(400).json({ errors: [{ msg: 'Falha na verificação do reCAPTCHA. Tente novamente.' }] });
             }
+            
 
-            const leadData = { ...req.body, clientIp };
-            logLeadToFile(leadData);
+            // Extrai dados do formulário
+            let {
+                documento,
+                nome,
+                telefone,
+                email,
+                cep,
+                rua,
+                numero,
+                bairro,
+                cidade_estado,
+                info_adicional,
+                latitude,
+                longitude
+            } = req.body;
 
-            console.log('Processo do lead concluído com sucesso no backend.');
+            // Sanitize campos sensíveis
+            nome = removeCaracteresEspeciais(nome);
+            rua = removeCaracteresEspeciais(rua);
+            bairro = removeCaracteresEspeciais(bairro);
+            info_adicional = validator.escape(info_adicional || '');
+            documento = validator.escape(documento);
+            telefone = validator.escape(telefone);
+            email = validator.normalizeEmail(email);
+
+
+            // Separa cidade e estado (espera "Cidade / Estado")
+            let cidade = '';
+            let estado = '';
+            if (cidade_estado && cidade_estado.includes('/')) {
+                [cidade, estado] = cidade_estado.split('/').map(s => s.trim());
+            } else {
+                cidade = cidade_estado || '';
+                estado = '';
+            }
+            
+            cidade = removeCaracteresEspeciais(cidade);
+
+            // Monta endereco_lead conforme esperado pela API externa
+            const endereco_lead = `${estado}|${cidade}|${bairro}|${rua}|${numero}|casa|${cep}`;
+
+            // Token da API - recomendo colocar no .env
+            const { obterToken } = require('./tokenManager');
+            const token = await obterToken();
+            const sys = 'MK0';
+            const dataConnection = ''; // ajuste conforme necessário
+
+            // Monta a URL da API externa
+            const apiUrl = `https://mk.brphonia.com.br/mk/WSMKInserirLead.rule?documento=${encodeURIComponent(documento)}&nome=${encodeURIComponent(nome)}&fone01=${encodeURIComponent(telefone)}&email=${encodeURIComponent(email)}&endereco_lead=${encodeURIComponent(endereco_lead)}&lat=${encodeURIComponent(latitude || '')}&lon=${encodeURIComponent(longitude || '')}&token=${encodeURIComponent(token)}&sys=${encodeURIComponent(sys)}&informacoes=${encodeURIComponent(info_adicional || '')}&dataConnection=${encodeURIComponent(dataConnection)}`;
+
+            // Chamada GET para API externa
+            let apiResponse = { data: { status: 'SUCESSO', Mensagem: 'API externa desativada para teste.' } };
+
+            if (ENVIO_EXTERNO_ATIVO) {
+                apiResponse = await axios.get(apiUrl);
+        
+                if (apiResponse.data && apiResponse.data.status === 'ERRO') {
+                    return res.status(400).json({ errors: [{ msg: `Erro Desconhecido` }] });
+                }
+            }
+
+            // Log local com resposta da API externa
+            logLeadToFile({
+                documento,
+                nome,
+                telefone,
+                email,
+                cep,
+                rua,
+                numero,
+                bairro,
+                cidade,
+                estado,
+                endereco_lead,
+                info_adicional,
+                latitude,
+                longitude,
+                clientIp,
+                apiResponse: apiResponse.data
+            });
+
+
+            console.log('Processo do lead concluído com sucesso no backend e API externa.');
             res.status(200).json({ message: 'Cadastro recebido com sucesso!', leadId: 'LEAD-' + Date.now() });
 
         } catch (error) {
-            console.error('Erro inesperado no servidor:', error);
+            console.error('Erro inesperado no servidor:', error.response?.data || error.message || error);
             res.status(500).json({ error: 'Ocorreu um erro interno no servidor.' });
         }
     }
@@ -160,3 +267,4 @@ app.listen(PORT, () => {
     console.log(`Servidor backend (HTTP) a correr em http://localhost:${PORT}`);
     console.log('Para controlar o modo debug, use os endpoints /api/debug/on e /api/debug/off com a chave secreta.');
 });
+

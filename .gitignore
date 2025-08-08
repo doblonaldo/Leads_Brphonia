@@ -1,7 +1,7 @@
 # Ignorar dependências e arquivos de ambiente
 node_modules/
 .env
-
+brphonia-token.json
 # Arquivos de sistema operacional
 .DS_Store
 Thumbs.db
