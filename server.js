@@ -267,3 +267,4 @@ app.listen(PORT, () => {
     console.log(`Servidor backend (HTTP) a correr em http://localhost:${PORT}`);
     console.log('Para controlar o modo debug, use os endpoints /api/debug/on e /api/debug/off com a chave secreta.');
 });
+
