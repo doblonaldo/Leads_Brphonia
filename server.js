@@ -112,7 +112,7 @@ app.post(
         try {
             const clientIp = req.ip;
 
-            
+            /*
             // reCAPTCHA desativado temporariamente
             const recaptchaToken = req.body['g-recaptcha-response'];
             const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
@@ -128,7 +128,7 @@ app.post(
                 console.log('Falha na validação do reCAPTCHA:', recaptchaRes.data['error-codes']);
                 return res.status(400).json({ errors: [{ msg: 'Falha na verificação do reCAPTCHA. Tente novamente.' }] });
             }
-            
+            */
 
             // Extrai dados do formulário
             let {
