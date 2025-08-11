@@ -1172,3 +1172,29 @@
 }
 ========================================
 
+[11/08/2025, 10:36:32] - NOVO LEAD RECEBIDO:
+{
+  "documento": "508.381.610-57",
+  "nome": "Lucas Da TI Teste",
+  "telefone": "(55) 96907-898",
+  "email": "seu@email.com.br",
+  "cep": "98796-704",
+  "rua": "Rua Sao Guido",
+  "numero": "172",
+  "bairro": "Auxiliadora",
+  "cidade": "Santa Rosa",
+  "estado": "RS",
+  "endereco_lead": "RS|Santa Rosa|Auxiliadora|Rua Sao Guido|172|casa|98796-704",
+  "info_adicional": "Vendedor Lucas e Douglas tratar Possui WhatsApp Se",
+  "latitude": "",
+  "longitude": "",
+  "clientIp": "::1",
+  "apiResponse": {
+    "cd_lead": 55647,
+    "pass_sac": "5645ed",
+    "status": "sucesso",
+    "user_sac": "4ab6de36"
+  }
+}
+========================================
+
