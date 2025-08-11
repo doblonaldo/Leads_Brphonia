@@ -148,10 +148,10 @@ app.post(
 
             // abreviação
             const abreviacoesServicos = {
-                    'Internet': 'NET. ',
-                    'Telefonia Móvel': 'TM. ',
-                    'Telefonia Fixa': 'TF. ',
-                    'Central': 'CT.'
+                    'Internet': 'NET ',
+                    'Telefonia Móvel': 'TM ',
+                    'Telefonia Fixa': 'TF ',
+                    'Central': 'CT'
             };
 
             // Captura marcações extras
@@ -166,7 +166,7 @@ app.post(
             // Monta texto extra
             let extras = [];
             if (temWhatsApp) extras.push(temWhatsApp);
-            if (servicosSelecionados.length) extras.push(`Serviços: ${servicosSelecionados.join(',')}`);
+            if (servicosSelecionados.length) extras.push(`Serviços ${servicosSelecionados.join(',')}`);
 
             // Adiciona ao info_adicional
             info_adicional = [info_adicional, ...extras].filter(Boolean).join(' | ');
