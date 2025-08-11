@@ -30,6 +30,7 @@ const app = express();
 const PORT = process.env.PORT || 9000;
 const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
+const limitadorIp = require('./limitadorIp');
 const csrfProtection = csrf({ cookie: { httpOnly: true, sameSite: 'strict' } });
 const helmet = require('helmet');
 
@@ -37,7 +38,7 @@ const helmet = require('helmet');
 let isDebugMode = false;
 
 // --- 2. MIDDLEWARES ---
-
+app.set('trust proxy', false);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -79,6 +80,7 @@ function logLeadToFile(leadData) {
 // --- 4. ROTA PRINCIPAL DA API: /api/submit-lead ---
 app.post(
     '/api/submit-lead',
+    limitadorIp,
     upload.fields([]),
     csrfProtection,
     [
@@ -144,11 +146,36 @@ app.post(
                 longitude
             } = req.body;
 
+            // abreviação
+            const abreviacoesServicos = {
+                    'Internet': 'NET ',
+                    'Telefonia Móvel': 'TM ',
+                    'Telefonia Fixa': 'TF ',
+                    'Central': 'CT'
+            };
+
+            // Captura marcações extras
+            const temWhatsApp = req.body.tem_whatsapp === 'on' ? 'Possui WhatsApp' : '';
+            let servicosSelecionados = [];
+            if (Array.isArray(req.body.servicos)) {
+                servicosSelecionados = req.body.servicos.map(s => abreviacoesServicos[s] || s);
+            } else if (req.body.servicos) {
+                servicosSelecionados = [abreviacoesServicos[req.body.servicos] || req.body.servicos];
+            }
+
+            // Monta texto extra
+            let extras = [];
+            if (temWhatsApp) extras.push(temWhatsApp);
+            if (servicosSelecionados.length) extras.push(`Serviços ${servicosSelecionados.join(',')}`);
+
+            // Adiciona ao info_adicional
+            info_adicional = [info_adicional, ...extras].filter(Boolean).join(' | ');
+
             // Sanitize campos sensíveis
             nome = removeCaracteresEspeciais(nome);
             rua = removeCaracteresEspeciais(rua);
             bairro = removeCaracteresEspeciais(bairro);
-            info_adicional = validator.escape(info_adicional || '');
+            info_adicional = removeCaracteresEspeciais(info_adicional || '').slice(0, 50);
             documento = validator.escape(documento);
             telefone = validator.escape(telefone);
             email = validator.normalizeEmail(email);
