@@ -146,14 +146,27 @@ app.post(
                 longitude
             } = req.body;
 
+            // abreviação
+            const abreviacoesServicos = {
+                    'Internet': 'NET',
+                    'Telefonia Móvel': 'TM',
+                    'Telefonia Fixa': 'TF',
+                    'Central': 'CT'
+            };
+
             // Captura marcações extras
             const temWhatsApp = req.body.tem_whatsapp === 'on' ? 'Possui WhatsApp' : '';
-            const servicosSelecionados = Array.isArray(req.body.servicos) ? req.body.servicos.join(', ') : (req.body.servicos || '');
+            let servicosSelecionados = [];
+            if (Array.isArray(req.body.servicos)) {
+                servicosSelecionados = req.body.servicos.map(s => abreviacoesServicos[s] || s);
+            } else if (req.body.servicos) {
+                servicosSelecionados = [abreviacoesServicos[req.body.servicos] || req.body.servicos];
+            }
 
             // Monta texto extra
             let extras = [];
             if (temWhatsApp) extras.push(temWhatsApp);
-            if (servicosSelecionados) extras.push(`Serviços: ${servicosSelecionados}`);
+            if (servicosSelecionados.length) extras.push(`Serviços: ${servicosSelecionados.join(',')}`);
 
             // Adiciona ao info_adicional
             info_adicional = [info_adicional, ...extras].filter(Boolean).join(' | ');
