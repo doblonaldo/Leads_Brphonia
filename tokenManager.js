@@ -18,16 +18,29 @@ async function renovarTokenSeNecessario() {
     carregarTokenDoArquivo();
 
     const agora = new Date();
-    if (!tokenData || new Date(tokenData.Expire) < agora) {
+    const expiraEm = tokenData?.Expire ? new Date(tokenData.Expire) : null;
+    const expirado = !expiraEm || isNaN(expiraEm) || expiraEm < agora;
+    const tokenVazio = !tokenData?.Token;
+
+    if (tokenVazio || expirado) {
+        console.log('[Brphonia] Token expirado ou vazio. Renovando...');
         const { data } = await axios.get(TOKEN_URL);
-        if (data.status !== 'OK') throw new Error('Falha ao renovar token');
+
+        if (data.status !== 'OK' || !data.Token) {
+            throw new Error(`Falha ao renovar token: ${JSON.stringify(data)}`);
+        }
 
         tokenData = {
             Token: data.Token,
             Expire: new Date(data.Expire).toISOString()
         };
-        fs.writeFileSync(tokenFile, JSON.stringify(tokenData, null, 2));
-        console.log('[Brphonia] Novo token obtido.');
+
+        try {
+            fs.writeFileSync(tokenFile, JSON.stringify(tokenData, null, 2));
+            console.log('[Brphonia] Novo token salvo no arquivo.');
+        } catch (err) {
+            console.error('[Brphonia] Erro ao salvar token no arquivo:', err);
+        }
     }
 }
 
