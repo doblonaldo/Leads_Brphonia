@@ -148,10 +148,10 @@ app.post(
 
             // abreviação
             const abreviacoesServicos = {
-                    'Internet': 'NET',
-                    'Telefonia Móvel': 'TM',
-                    'Telefonia Fixa': 'TF',
-                    'Central': 'CT'
+                    'Internet': 'NET. ',
+                    'Telefonia Móvel': 'TM. ',
+                    'Telefonia Fixa': 'TF. ',
+                    'Central': 'CT.'
             };
 
             // Captura marcações extras
