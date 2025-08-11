@@ -197,6 +197,7 @@ app.post(
             const endereco_lead = `${estado}|${cidade}|${bairro}|${rua}|${numero}|casa|${cep}`;
 
             // Token da API - recomendo colocar no .env
+            
             const { obterToken } = require('./tokenManager');
             const token = await obterToken();
             const sys = 'MK0';
