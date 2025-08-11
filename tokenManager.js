@@ -1,4 +1,3 @@
-// tokenManager.js
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
@@ -10,42 +9,25 @@ let tokenData = null;
 
 function carregarTokenDoArquivo() {
     if (fs.existsSync(tokenFile)) {
-        try {
-            const data = fs.readFileSync(tokenFile, 'utf8');
-            tokenData = JSON.parse(data);
-        } catch (err) {
-            console.error('[Brphonia] Erro ao ler token do arquivo:', err);
-            tokenData = null;
-        }
+        const data = fs.readFileSync(tokenFile);
+        tokenData = JSON.parse(data);
     }
 }
 
 async function renovarTokenSeNecessario() {
     carregarTokenDoArquivo();
 
-    const agora = Date.now();
-    const expiracao = tokenData ? new Date(tokenData.Expire).getTime() : 0;
-
-    // Se não existe token ou já está vencido, renovar
-    if (!tokenData || expiracao <= agora) {
-        console.log('[Brphonia] Renovando token...');
+    const agora = new Date();
+    if (!tokenData || new Date(tokenData.Expire) < agora) {
         const { data } = await axios.get(TOKEN_URL);
-
-        if (!data || !data.Token) {
-            throw new Error('[Brphonia] Falha ao obter novo token da API');
-        }
+        if (data.status !== 'OK') throw new Error('Falha ao renovar token');
 
         tokenData = {
             Token: data.Token,
             Expire: new Date(data.Expire).toISOString()
         };
-
-        try {
-            fs.writeFileSync(tokenFile, JSON.stringify(tokenData, null, 2), 'utf8');
-            console.log('[Brphonia] Novo token salvo com sucesso.');
-        } catch (err) {
-            console.error('[Brphonia] Erro ao salvar token:', err);
-        }
+        fs.writeFileSync(tokenFile, JSON.stringify(tokenData, null, 2));
+        console.log('[Brphonia] Novo token obtido.');
     }
 }
 
