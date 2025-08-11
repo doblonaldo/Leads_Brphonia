@@ -2,6 +2,7 @@
 node_modules/
 .env
 brphonia-token.json
+leads.log
 # Arquivos de sistema operacional
 .DS_Store
 Thumbs.db
