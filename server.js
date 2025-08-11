@@ -30,7 +30,6 @@ const app = express();
 const PORT = process.env.PORT || 9000;
 const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
-const limitadorIp = require('./limitadorIp');
 const csrfProtection = csrf({ cookie: { httpOnly: true, sameSite: 'strict' } });
 const helmet = require('helmet');
 
@@ -38,7 +37,7 @@ const helmet = require('helmet');
 let isDebugMode = false;
 
 // --- 2. MIDDLEWARES ---
-app.set('trust proxy', false);
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -80,7 +79,6 @@ function logLeadToFile(leadData) {
 // --- 4. ROTA PRINCIPAL DA API: /api/submit-lead ---
 app.post(
     '/api/submit-lead',
-    limitadorIp,
     upload.fields([]),
     csrfProtection,
     [
