@@ -38,7 +38,7 @@ const helmet = require('helmet');
 let isDebugMode = false;
 
 // --- 2. MIDDLEWARES ---
-app.set('trust proxy', true);
+app.set('trust proxy', false);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -153,7 +153,7 @@ app.post(
             // Monta texto extra
             let extras = [];
             if (temWhatsApp) extras.push(temWhatsApp);
-            if (servicosSelecionados) extras.push(`Serviços de Interesse: ${servicosSelecionados}`);
+            if (servicosSelecionados) extras.push(`Serviços: ${servicosSelecionados}`);
 
             // Adiciona ao info_adicional
             info_adicional = [info_adicional, ...extras].filter(Boolean).join(' | ');
@@ -162,7 +162,7 @@ app.post(
             nome = removeCaracteresEspeciais(nome);
             rua = removeCaracteresEspeciais(rua);
             bairro = removeCaracteresEspeciais(bairro);
-            info_adicional = removeCaracteresEspeciais(info_adicional || '');
+            info_adicional = removeCaracteresEspeciais(info_adicional || '').slice(0, 50);
             documento = validator.escape(documento);
             telefone = validator.escape(telefone);
             email = validator.normalizeEmail(email);
