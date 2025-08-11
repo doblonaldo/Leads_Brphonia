@@ -100,7 +100,7 @@ app.post(
         body('numero').trim().notEmpty().withMessage('O número é obrigatório.'),
         body('bairro').trim().notEmpty().withMessage('O bairro é obrigatório.'),
         body('cidade_estado').trim().notEmpty().withMessage('A cidade/estado são obrigatórios.'),
-        body('servicos').optional(),
+        body('servicos').optional(), 
         body('info_adicional').optional().trim(),
     ],
     async (req, res) => {
