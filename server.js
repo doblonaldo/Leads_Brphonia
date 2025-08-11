@@ -112,7 +112,7 @@ app.post(
         try {
             const clientIp = req.ip;
 
-            
+            /*
             // reCAPTCHA desativado temporariamente
             const recaptchaToken = req.body['g-recaptcha-response'];
             const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
@@ -128,7 +128,7 @@ app.post(
                 console.log('Falha na validação do reCAPTCHA:', recaptchaRes.data['error-codes']);
                 return res.status(400).json({ errors: [{ msg: 'Falha na verificação do reCAPTCHA. Tente novamente.' }] });
             }
-            
+            */
 
             // Extrai dados do formulário
             let {
@@ -145,6 +145,18 @@ app.post(
                 latitude,
                 longitude
             } = req.body;
+
+            // Captura marcações extras
+            const temWhatsApp = req.body.tem_whatsapp === 'on' ? 'Possui WhatsApp' : '';
+            const servicosSelecionados = Array.isArray(req.body.servicos) ? req.body.servicos.join(', ') : (req.body.servicos || '');
+
+            // Monta texto extra
+            let extras = [];
+            if (temWhatsApp) extras.push(temWhatsApp);
+            if (servicosSelecionados) extras.push(`Serviços de Interesse: ${servicosSelecionados}`);
+
+            // Adiciona ao info_adicional
+            info_adicional = [info_adicional, ...extras].filter(Boolean).join(' | ');
 
             // Sanitize campos sensíveis
             nome = removeCaracteresEspeciais(nome);
