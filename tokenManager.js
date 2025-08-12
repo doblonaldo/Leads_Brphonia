@@ -5,6 +5,9 @@ const axios = require('axios');
 const tokenFile = path.join(__dirname, 'brphonia-token.json');
 const TOKEN_URL = `https://mk.brphonia.com.br/mk/WSAutenticacao.rule?sys=MK0&token=${process.env.BRPHONIA_AUTH_TOKEN}&password=${process.env.BRPHONIA_AUTH_PASSWORD}&cd_servico=9999`;
 
+// Renovar 6 horas antes da expiração real
+const RENOVAR_ANTES_MS = 6 * 60 * 60 * 1000;
+
 let tokenData = null;
 
 /**
@@ -19,6 +22,8 @@ function carregarTokenDoArquivo() {
             console.error('[Brphonia] Erro ao ler token do arquivo:', err);
             tokenData = null;
         }
+    } else {
+        tokenData = null; // 🔹 Evita tokenData indefinido
     }
 }
 
@@ -27,6 +32,7 @@ function carregarTokenDoArquivo() {
  * Se for inválida, retorna null.
  */
 function parseDataSegura(valor) {
+    if (!valor || typeof valor !== 'string') return null; // 🔹 Proteção extra
     const data = new Date(valor);
     return isNaN(data) ? null : data;
 }
@@ -39,7 +45,7 @@ async function renovarTokenSeNecessario() {
 
     const agora = new Date();
     const expiraEm = parseDataSegura(tokenData?.Expire);
-    const expirado = !expiraEm || expiraEm < agora;
+    const expirado = !expiraEm || (expiraEm.getTime() - agora.getTime()) <= RENOVAR_ANTES_MS;
     const tokenVazio = !tokenData?.Token;
 
     if (tokenVazio || expirado) {
