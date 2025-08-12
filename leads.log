@@ -1248,3 +1248,55 @@
 }
 ========================================
 
+[11/08/2025, 15:45:40] - NOVO LEAD RECEBIDO:
+{
+  "documento": "508.381.610-57",
+  "nome": "GABRIEL TESTETI",
+  "telefone": "(55) 96907-898",
+  "email": "seu@email.com.br",
+  "cep": "98796-704",
+  "rua": "Rua Sao Guido",
+  "numero": "17",
+  "bairro": "Auxiliadora",
+  "cidade": "Santa Rosa",
+  "estado": "RS",
+  "endereco_lead": "RS|Santa Rosa|Auxiliadora|Rua Sao Guido|17|casa|98796-704",
+  "info_adicional": "Servicos TM",
+  "latitude": "",
+  "longitude": "",
+  "clientIp": "::1",
+  "apiResponse": {
+    "cd_lead": 55668,
+    "pass_sac": "f1c3ae",
+    "status": "sucesso",
+    "user_sac": "9a1afd79"
+  }
+}
+========================================
+
+[11/08/2025, 17:06:49] - NOVO LEAD RECEBIDO:
+{
+  "documento": "508.381.610-57",
+  "nome": "Lucas Da TI Teste",
+  "telefone": "(55) 96907-898",
+  "email": "seu@email.com.br",
+  "cep": "25251-560",
+  "rua": "Rua Nadir",
+  "numero": "17",
+  "bairro": "Chacaras Arcampo",
+  "cidade": "Duque de Caxias",
+  "estado": "RJ",
+  "endereco_lead": "RJ|Duque de Caxias|Chacaras Arcampo|Rua Nadir|17|casa|25251-560",
+  "info_adicional": "",
+  "latitude": "",
+  "longitude": "",
+  "clientIp": "::1",
+  "apiResponse": {
+    "cd_lead": 55680,
+    "pass_sac": "6ef581",
+    "status": "sucesso",
+    "user_sac": "489a10de"
+  }
+}
+========================================
+
