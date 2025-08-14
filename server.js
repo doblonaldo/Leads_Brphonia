@@ -176,6 +176,7 @@ app.post(
             rua = removeCaracteresEspeciais(rua);
             bairro = removeCaracteresEspeciais(bairro);
             info_adicional = removeCaracteresEspeciais(info_adicional || '').slice(0, 50);
+            documento = documento.replace(/[^0-9.\-\/]/g, '');
             telefone = validator.escape(telefone);
             email = validator.normalizeEmail(email);
 
