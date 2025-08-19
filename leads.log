@@ -1378,3 +1378,53 @@
 }
 ========================================
 
+[14/08/2025, 09:40:12] - NOVO LEAD RECEBIDO:
+{
+  "documento": "53.890.611/0001-19",
+  "nome": "EMPRESA TI TESTE",
+  "telefone": "(55) 96907-898",
+  "email": "seu@email.com.br",
+  "cep": "25251-560",
+  "rua": "Rua Nadir",
+  "numero": "172",
+  "bairro": "Chacaras Arcampo",
+  "cidade": "Duque de Caxias",
+  "estado": "RJ",
+  "endereco_lead": "RJ|Duque de Caxias|Chacaras Arcampo|Rua Nadir|172|casa|25251-560",
+  "info_adicional": "sadad",
+  "latitude": "",
+  "longitude": "",
+  "clientIp": "::1",
+  "apiResponse": {
+    "cd_lead": 55768,
+    "pass_sac": "3701ff",
+    "status": "sucesso",
+    "user_sac": "cd949250"
+  }
+}
+========================================
+
+[18/08/2025, 16:30:39] - NOVO LEAD RECEBIDO:
+{
+  "documento": "152.693.807-30",
+  "nome": "TESTE LUCAS",
+  "telefone": "(12) 345",
+  "email": "seu@email.com",
+  "cep": "25251-560",
+  "rua": "Rua Nadir",
+  "numero": "17",
+  "bairro": "Chacaras Arcampo",
+  "cidade": "Duque de Caxias",
+  "estado": "RJ",
+  "endereco_lead": "RJ|Duque de Caxias|Chacaras Arcampo|Rua Nadir|17|casa|25251-560",
+  "info_adicional": "",
+  "latitude": "",
+  "longitude": "",
+  "clientIp": "::1",
+  "apiResponse": {
+    "status": "SUCESSO",
+    "Mensagem": "API externa desativada para teste."
+  }
+}
+========================================
+
