@@ -38,7 +38,7 @@ const helmet = require('helmet');
 let isDebugMode = false;
 
 // --- 2. MIDDLEWARES ---
-app.set('trust proxy', false);
+app.set('trust proxy', true);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -93,13 +93,13 @@ app.post(
             }
             return true;
         }),
-        body('telefone').trim().notEmpty().withMessage('O telefone é obrigatório.'),
-        body('email').trim().notEmpty().withMessage('O email é obrigatório.').isEmail(),
-        body('cep').if(body('sem_cep').not().equals('on')).trim().notEmpty().withMessage('O CEP é obrigatório.'),
+        body('telefone').trim().notEmpty().withMessage('O telefone é obrigatório.').isMobilePhone('pt-BR').withMessage('Informe um número de telefone válido com DDD.'),
+        body('email').trim().notEmpty().withMessage('O email é obrigatório.').isEmail().withMessage('Email incorreto'),
+        body('cep').if(body('sem_cep').not().equals('on')).trim().notEmpty().withMessage('O CEP é obrigatório.').isLength({ min: 8, max: 9 }).withMessage('Informe um CEP válido no formato 00000-000.'),
         body('rua').trim().notEmpty().withMessage('A rua é obrigatória.'),
-        body('numero').trim().notEmpty().withMessage('O número é obrigatório.'),
+        body('numero').trim().notEmpty().withMessage('O número é obrigatório.').matches(/^\d{1,8}$|^S\/N$/i).withMessage('O número deve conter apenas dígitos ou "S/N".'),
         body('bairro').trim().notEmpty().withMessage('O bairro é obrigatório.'),
-        body('cidade_estado').trim().notEmpty().withMessage('A cidade/estado são obrigatórios.'),
+        body('cidade_estado').trim().notEmpty().withMessage('A cidade/estado são obrigatórios.').matches(/.+\/.+/).withMessage('Informe no formato "Cidade / UF".'),
         body('servicos').optional(),
         body('info_adicional').optional().trim(),
     ],
@@ -110,7 +110,9 @@ app.post(
         }
 
         try {
-            const clientIp = req.ip;
+            const forwarded = req.headers['x-forwarded-for'];
+            const clientIp = forwarded ? forwarded.split(',')[0].trim() : req.connection.remoteAddress;
+
 
             /*
             // reCAPTCHA desativado temporariamente
@@ -129,7 +131,7 @@ app.post(
                 return res.status(400).json({ errors: [{ msg: 'Falha na verificação do reCAPTCHA. Tente novamente.' }] });
             }
             */
-
+            
             // Extrai dados do formulário
             let {
                 documento,
@@ -176,7 +178,7 @@ app.post(
             rua = removeCaracteresEspeciais(rua);
             bairro = removeCaracteresEspeciais(bairro);
             info_adicional = removeCaracteresEspeciais(info_adicional || '').slice(0, 50);
-            documento = validator.escape(documento);
+            documento = documento.replace(/[^0-9.\-\/]/g, '');
             telefone = validator.escape(telefone);
             email = validator.normalizeEmail(email);
 
@@ -197,6 +199,7 @@ app.post(
             const endereco_lead = `${estado}|${cidade}|${bairro}|${rua}|${numero}|casa|${cep}`;
 
             // Token da API - recomendo colocar no .env
+            
             const { obterToken } = require('./tokenManager');
             const token = await obterToken();
             const sys = 'MK0';

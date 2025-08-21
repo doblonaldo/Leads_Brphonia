@@ -124,7 +124,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                     <div>
                         <label for="numero" class="form-label">Número</label>
-                        <input type="text" id="numero" name="numero" class="form-input" required inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                        <input type="text" id="numero" name="numero" maxlength="8" class="form-input" required inputmode="numeric" oninput="this.value = this.value.toUpperCase().replace(/[^0-9SN/]/g, '')">
                     </div>
                     <div>
                         <label for="bairro" class="form-label">Bairro</label>
