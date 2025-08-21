@@ -38,7 +38,7 @@ const helmet = require('helmet');
 let isDebugMode = false;
 
 // --- 2. MIDDLEWARES ---
-app.set('trust proxy', false);
+app.set('trust proxy', true);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -110,7 +110,9 @@ app.post(
         }
 
         try {
-            const clientIp = req.ip;
+            const forwarded = req.headers['x-forwarded-for'];
+            const clientIp = forwarded ? forwarded.split(',')[0].trim() : req.connection.remoteAddress;
+
 
             /*
             // reCAPTCHA desativado temporariamente
